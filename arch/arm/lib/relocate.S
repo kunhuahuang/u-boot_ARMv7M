@@ -57,6 +57,10 @@ fixnext:
 	blo	fixloop
 
 relocate_done:
+	/* nop added for debugging reasons, place breakpoint
+	 * here to debug relocated code
+	 */
+	nop
 
 #ifdef __XSCALE__
 	/*
