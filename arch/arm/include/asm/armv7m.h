@@ -18,7 +18,6 @@
 
 #define V7M_SCB_BASE		0xE000ED00
 #define V7M_MPU_BASE		0xE000ED90
-#define V7M_SYSTICK_BASE	0xE000E010
 
 #if !defined(__ASSEMBLY__)
 struct v7m_scb {
@@ -55,18 +54,6 @@ struct v7m_mpu {
 #define V7M_MPU_RASR_SIZE_BITS		1
 #define V7M_MPU_RASR_SIZE_4GB		(31 << V7M_MPU_RASR_SIZE_BITS)
 #define V7M_MPU_RASR_AP_RW_RW		(3 << 24)
-
-struct v7m_systick {
-	uint32_t ctrl;			/* Control and Status Register */
-	uint32_t load;			/* Reload Value Register */
-	uint32_t val;			/* Current Value Register */
-	uint32_t cal;			/* Calibration Register */
-};
-#define V7M_SYSTICK		((volatile struct v7m_sytick *)V7M_SYSTICK_BASE)
-
-#define V7M_SYSTICK_LOAD_RELOAD_MSK		(0x00FFFFFF)
-#define V7M_SYSTICK_CTRL_EN		(1 << 0)
-#define V7M_SYSTICK_CTRL_SYSTICK_CPU		(1 << 2)
 
 #endif
 
