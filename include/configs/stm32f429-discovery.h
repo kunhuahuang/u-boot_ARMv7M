@@ -89,7 +89,16 @@
 #define CONFIG_BOOTARGS							\
 	"earlyprintk"
 #define CONFIG_BOOTCOMMAND						\
-	"mmc_spi 3:0; ext4load mmc 0 ${loadaddr} /uImage;bootm"
+	"run bootcmd_xip"
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	"bootcmd_xip=mmc_spi 3:0;" \
+	"ext4load mmc 0 0xD0000000 /stm32f429-disco.dtb;" \
+	"ext4load mmc 0 0xD0100000 /rootfs.cpio.uboot;" \
+	"bootm 0x08080000 0xD0100000 0xD0000000\0" \
+	"bootcmd_ram=mmc_spi 3:0;" \
+	"ext4load mmc 0 ${loadaddr} /uImage;" \
+	"bootm\0"
 
 /*
  * Only interrupt autoboot if <space> is pressed. Otherwise, garbage
