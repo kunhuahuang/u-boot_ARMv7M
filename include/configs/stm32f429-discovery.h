@@ -87,7 +87,7 @@
 
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_BOOTARGS							\
-	"earlyprintk"
+	"earlyprintk fbcon=font:MINI4x6 fbcon=rotate:3"
 #define CONFIG_BOOTCOMMAND						\
 	"run bootcmd_xip"
 
