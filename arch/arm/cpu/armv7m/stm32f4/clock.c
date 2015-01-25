@@ -50,6 +50,11 @@
 #define PWR_CR_VOS_SCALE_MODE_2	(PWR_CR_VOS1)
 #define PWR_CR_VOS_SCALE_MODE_3	(PWR_CR_VOS0)
 
+#define FLASH_ACR_WS(n)	n
+#define FLASH_ACR_PRFTEN	(1 << 8)
+#define FLASH_ACR_ICEN	(1 << 9)
+#define FLASH_ACR_DCEN	(1 << 10)
+
 struct pll_psc {
 	u8 pll_m;
 	u16 pll_n;
@@ -127,7 +132,7 @@ int configure_clocks(void)
 	while(!(STM32_RCC->cr & RCC_CR_PLLRDY));
 
 	/* 5 wait states, D-Cache enabled, I-Cache enabled */
-	STM32_FLASH->acr = 0x00000605;
+	STM32_FLASH->acr = FLASH_ACR_WS(5) | FLASH_ACR_PRFTEN | FLASH_ACR_ICEN | FLASH_ACR_DCEN;
 
 	STM32_RCC->cfgr &= ~(RCC_CFGR_SW0 | RCC_CFGR_SW1);
 	STM32_RCC->cfgr |= RCC_CFGR_SW_PLL;
