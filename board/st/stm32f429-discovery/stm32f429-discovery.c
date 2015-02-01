@@ -420,28 +420,6 @@ int dram_init(void)
 	return rv;
 }
 
-unsigned long flash_init (void)
-{
-	return 0x200000;
-}
-
-int flash_erase(flash_info_t * a, int b, int c)
-{
-	return 0;
-}
-
-void flash_print_info (flash_info_t *o)
-{
-	return;
-}
-
-int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
-{
-	return 0;
-}
-
-flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
-
 u32 get_board_rev(void)
 {
 	return 0;

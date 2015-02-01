@@ -78,6 +78,8 @@ struct stm32_flash_regs {
  * Registers access macros
  */
 
+#define BIT(n)	(1u << n)
+
 #define STM32_RCC_BASE		(STM32_AHB1PERIPH_BASE + 0x3800)
 #define STM32_RCC			((volatile struct stm32_rcc_regs *) \
 							STM32_RCC_BASE)
@@ -89,6 +91,14 @@ struct stm32_flash_regs {
 #define STM32_FLASH_BASE	(STM32_AHB1PERIPH_BASE + 0x3C00)
 #define STM32_FLASH		((volatile struct stm32_flash_regs *) \
 							STM32_FLASH_BASE)
+
+#define STM32_FLASH_SR_BSY	BIT(16)
+
+#define STM32_FLASH_CR_PG	BIT(0)
+#define STM32_FLASH_CR_SER	BIT(1)
+#define STM32_FLASH_CR_STRT BIT(16)
+#define STM32_FLASH_CR_LOCK	BIT(31)
+#define STM32_FLASH_CR_SNB_OFFSET	3
 
 /*
  * Clocks enumeration
