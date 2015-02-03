@@ -91,16 +91,19 @@
 
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_BOOTARGS							\
-	"console=ttystm0,115200 earlyprintk consoleblank=0 uclinux.physaddr=0x08180000 root=/dev/mtdblock0 ignore_loglevel"
+	"console=ttystm0,115200 earlyprintk consoleblank=0 ignore_loglevel"
 #define CONFIG_BOOTCOMMAND						\
-	"run bootcmd_xip"
+	"run bootcmd_romfs"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"bootcmd_xip=mmc_spi 3:0;" \
+	"bootargs_romfs=uclinux.physaddr=0x08180000 root=/dev/mtdblock0\0" \
+	"bootargs_ramfs=root=initrd\0" \
+	"bootcmd_romfs=setenv bootargs ${bootargs} ${bootargs_romfs};" \
 	"bootm 0x08044000 - 0x08042000\0" \
-	"bootcmd_ram=mmc_spi 3:0;" \
-	"ext4load mmc 0 ${loadaddr} /uImage;" \
-	"bootm\0"
+	"bootcmd_ramfs=setenv bootargs ${bootargs} ${bootargs_ramfs};" \
+	"mmc_spi 3:0;" \
+	"ext4load mmc 0 0xD0000000 /rootfs.cpio.uboot;" \
+	"bootm 0x08044000 0xD0000000 0x08042000\0"
 
 /*
  * Only interrupt autoboot if <space> is pressed. Otherwise, garbage
