@@ -6,28 +6,17 @@
  */
 
 #include <common.h>
-#include <command.h>
 #include <serial.h>
-#include <linux/compiler.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/stm32_gpio.h>
 
 #define STM32_USART1_BASE	0x40011000 /* APB2 */
-#define STM32_USART2_BASE	0x40004400 /* APB1 */
 
 #define USART_SR_FLAG_RXNE	0x20
 #define USART_SR_FLAG_TXE	0x80
 
-#if defined(CONFIG_STM32_USART1)
 #define USART_BASE	STM32_USART1_BASE
 #define RCC_USART_ENABLE	0x10
-static const struct stm32_gpio_dsc usart_gpio[] = {
-		{STM32_GPIO_PORT_A, STM32_GPIO_PIN_9},
-		{STM32_GPIO_PORT_A, STM32_GPIO_PIN_10},
-};
-#elif defined(CONFIG_STM32_USART2)
-#define USART_BASE	STM32_USART2_BASE
-#endif
 
 struct stm32_serial {
 	uint32_t USART_SR;
@@ -46,19 +35,10 @@ static void stm32_serial_setbrg(void)
 
 static int stm32_serial_init(void)
 {
-	int i, rv;
 	volatile struct stm32_serial* base = (struct stm32_serial *)USART_BASE;
 
 	/* Enable clocks to peripherals (GPIO, USART) */
 	STM32_RCC->apb2enr |= RCC_USART_ENABLE; /* USART2 enable */
-
-	/* Enable and mux GPIOs */
-	for (i = 0; i < ARRAY_SIZE(usart_gpio); i++) {
-		rv = stm32_gpio_config(&usart_gpio[i], STM32_GPIO_ROLE_USART1);
-		if(rv) {
-			return rv;
-		}
-	}
 
 	/* USART configuration */
 	/* for 115.200k program 22.8125 if fpclk = 42MHz */
