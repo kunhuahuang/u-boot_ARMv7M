@@ -11,40 +11,46 @@
 #include <common.h>
 #include <asm/arch/stm32.h>
 
-#define RCC_CR_HSION	0x00000001
-#define RCC_CR_HSEON	0x00010000
-#define RCC_CR_HSERDY	0x00020000
-#define RCC_CR_HSEBYP	0x00040000
-#define RCC_CR_CSSON	0x00080000
-#define RCC_CR_PLLON	0x01000000
-#define RCC_CR_PLLRDY	0x02000000
+#define RCC_CR_HSION	(1 << 0)
+#define RCC_CR_HSEON	(1 << 16)
+#define RCC_CR_HSERDY	(1 << 17)
+#define RCC_CR_HSEBYP	(1 << 18)
+#define RCC_CR_CSSON	(1 << 19)
+#define RCC_CR_PLLON	(1 << 24)
+#define RCC_CR_PLLRDY	(1 << 25)
 
 #define RCC_PLLCFGR_PLLM_MASK	0x3F
 #define RCC_PLLCFGR_PLLN_MASK	0x7FC0
 #define RCC_PLLCFGR_PLLP_MASK	0x30000
 #define RCC_PLLCFGR_PLLQ_MASK	0xF000000
-#define RCC_PLLCFGR_PLLSRC	0x00400000
+#define RCC_PLLCFGR_PLLSRC	(1 << 22)
+#define RCC_PLLCFGR_PLLN_SHIFT	6
+#define RCC_PLLCFGR_PLLP_SHIFT	16
+#define RCC_PLLCFGR_PLLQ_SHIFT	24
 
 #define RCC_CFGR_AHB_PSC_MASK	0xF0
 #define RCC_CFGR_APB1_PSC_MASK	0x1C00
 #define RCC_CFGR_APB2_PSC_MASK	0xE000
-#define RCC_CFGR_SW0	0x00000001
-#define RCC_CFGR_SW1	0x00000002
+#define RCC_CFGR_SW0	(1 << 0)
+#define RCC_CFGR_SW1	(1 << 1)
 #define RCC_CFGR_SW_MASK	0x3
 #define RCC_CFGR_SW_HSI	0
 #define RCC_CFGR_SW_HSE	RCC_CFGR_SW0
 #define RCC_CFGR_SW_PLL	RCC_CFGR_SW1
-#define RCC_CFGR_SWS0	0x00000004
-#define RCC_CFGR_SWS1	0x00000008
+#define RCC_CFGR_SWS0	(1 << 2)
+#define RCC_CFGR_SWS1	(1 << 3)
 #define RCC_CFGR_SWS_MASK	0xC
 #define RCC_CFGR_SWS_HSI	0
 #define RCC_CFGR_SWS_HSE	RCC_CFGR_SWS0
 #define RCC_CFGR_SWS_PLL	RCC_CFGR_SWS1
+#define RCC_CFGR_HPRE_SHIFT	4
+#define RCC_CFGR_PPRE1_SHIFT	10
+#define RCC_CFGR_PPRE2_SHIFT	13
 
-#define RCC_APB1_PWREN	0x10000000
+#define RCC_APB1ENR_PWREN	(1 << 28)
 
-#define PWR_CR_VOS0	0x00004000
-#define PWR_CR_VOS1	0x00008000
+#define PWR_CR_VOS0	(1 << 14)
+#define PWR_CR_VOS1	(1 << 15)
 #define PWR_CR_VOS_MASK	0xC000
 #define PWR_CR_VOS_SCALE_MODE_1	(PWR_CR_VOS0 | PWR_CR_VOS1)
 #define PWR_CR_VOS_SCALE_MODE_2	(PWR_CR_VOS1)
@@ -114,24 +120,24 @@ int configure_clocks(void)
 	while(!(STM32_RCC->cr & RCC_CR_HSERDY));
 
 	/* Enable high performance mode, System frequency up to 168 MHz */
-	STM32_RCC->apb1enr |= RCC_APB1_PWREN;
+	STM32_RCC->apb1enr |= RCC_APB1ENR_PWREN;
 	STM32_PWR->cr = PWR_CR_VOS_SCALE_MODE_1;
 
-	STM32_RCC->cfgr |= ((pll_psc_168.ahb_psc << 4)
-			| (pll_psc_168.apb1_psc << 10)
-			| (pll_psc_168.apb2_psc << 13));
+	STM32_RCC->cfgr |= ((pll_psc_168.ahb_psc << RCC_CFGR_HPRE_SHIFT)
+			| (pll_psc_168.apb1_psc << RCC_CFGR_PPRE1_SHIFT)
+			| (pll_psc_168.apb2_psc << RCC_CFGR_PPRE2_SHIFT));
 
 	STM32_RCC->pllcfgr = pll_psc_168.pll_m
-			| (pll_psc_168.pll_n << 6)
-			| (((pll_psc_168.pll_p >> 1) - 1) << 16)
-			| (pll_psc_168.pll_q << 24);
+			| (pll_psc_168.pll_n << RCC_PLLCFGR_PLLN_SHIFT)
+			| (((pll_psc_168.pll_p >> 1) - 1) << RCC_PLLCFGR_PLLP_SHIFT)
+			| (pll_psc_168.pll_q << RCC_PLLCFGR_PLLQ_SHIFT);
 	STM32_RCC->pllcfgr |= RCC_PLLCFGR_PLLSRC;
 
 	STM32_RCC->cr |= RCC_CR_PLLON;
 
 	while(!(STM32_RCC->cr & RCC_CR_PLLRDY));
 
-	/* 5 wait states, D-Cache enabled, I-Cache enabled */
+	/* 5 wait states, Prefetch enabled, D-Cache enabled, I-Cache enabled */
 	STM32_FLASH->acr = FLASH_ACR_WS(5) | FLASH_ACR_PRFTEN | FLASH_ACR_ICEN | FLASH_ACR_DCEN;
 
 	STM32_RCC->cfgr &= ~(RCC_CFGR_SW0 | RCC_CFGR_SW1);
@@ -155,8 +161,8 @@ unsigned long clock_get(enum clock clck)
 	if((STM32_RCC->cfgr & RCC_CFGR_SWS_MASK) == RCC_CFGR_SWS_PLL) {
 		u16 pllm, plln, pllp;
 		pllm = (STM32_RCC->pllcfgr & RCC_PLLCFGR_PLLM_MASK);
-		plln = ((STM32_RCC->pllcfgr & RCC_PLLCFGR_PLLN_MASK) >> 6);
-		pllp = ((((STM32_RCC->pllcfgr & RCC_PLLCFGR_PLLP_MASK) >> 16) + 1) << 1);
+		plln = ((STM32_RCC->pllcfgr & RCC_PLLCFGR_PLLN_MASK) >> RCC_PLLCFGR_PLLN_SHIFT);
+		pllp = ((((STM32_RCC->pllcfgr & RCC_PLLCFGR_PLLP_MASK) >> RCC_PLLCFGR_PLLP_SHIFT) + 1) << 1);
 		sysclk = ((CONFIG_STM32_HSE_HZ / pllm) * plln) / pllp;
 	}
 
@@ -165,19 +171,16 @@ unsigned long clock_get(enum clock clck)
 		return sysclk;
 		break;
 	case CLOCK_AHB:
-		shift = ahb_psc_table[((STM32_RCC->cfgr & RCC_CFGR_AHB_PSC_MASK) >> 4)];
+		shift = ahb_psc_table[((STM32_RCC->cfgr & RCC_CFGR_AHB_PSC_MASK) >> RCC_CFGR_HPRE_SHIFT)];
 		return sysclk >>= shift;
 		break;
 	case CLOCK_APB1:
-		shift = apb_psc_table[((STM32_RCC->cfgr & RCC_CFGR_APB1_PSC_MASK) >> 10)];
+		shift = apb_psc_table[((STM32_RCC->cfgr & RCC_CFGR_APB1_PSC_MASK) >> RCC_CFGR_PPRE1_SHIFT)];
 		return sysclk >>= shift;
 		break;
 	case CLOCK_APB2:
-		shift = apb_psc_table[((STM32_RCC->cfgr & RCC_CFGR_APB2_PSC_MASK) >> 13)];
+		shift = apb_psc_table[((STM32_RCC->cfgr & RCC_CFGR_APB2_PSC_MASK) >> RCC_CFGR_PPRE2_SHIFT)];
 		return sysclk >>= shift ;
-		break;
-	case CLOCK_SYSTICK:
-		return sysclk / 8;
 		break;
 	default:
 		return 0;

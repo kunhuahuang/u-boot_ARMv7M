@@ -107,8 +107,7 @@ enum clock {
 	CLOCK_CORE,
 	CLOCK_AHB,
 	CLOCK_APB1,
-	CLOCK_APB2,
-	CLOCK_SYSTICK
+	CLOCK_APB2
 };
 
 int configure_clocks(void);

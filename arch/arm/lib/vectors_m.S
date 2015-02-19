@@ -53,6 +53,6 @@ ENTRY(_start)
 	.long	__invalid_entry			@ 13 - Reserved
 	.long	__invalid_entry			@ 14 - PendSV
 	.long	__invalid_entry			@ 15 - SysTick
-	.rept	107 - 16
-	.long	__invalid_entry			@ 16..107 - External Interrupts
+	.rept	256 - 16
+	.long	__invalid_entry			@ 16..256 - External Interrupts
 	.endr
