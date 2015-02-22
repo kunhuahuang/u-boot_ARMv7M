@@ -23,22 +23,13 @@
 #define _MACH_FMC_H_
 
 struct stm32_fmc_regs {
-	/* Control registers */
-	u32 sdcr1;
-	u32 sdcr2;
-
-	/* Timing registers */
-	u32 sdtr1;
-	u32 sdtr2;
-
-	/* Mode register */
-	u32 sdcmr;
-
-	/* Refresh timing register */
-	u32 sdrtr;
-
-	/* Status register */
-	u32 sdsr;
+	u32 sdcr1;	/* Control register 1 */
+	u32 sdcr2;	/* Control register 2 */
+	u32 sdtr1;	/* Timing register 1 */
+	u32 sdtr2;	/* Timing register 2 */
+	u32 sdcmr;	/* Mode register */
+	u32 sdrtr;	/* Refresh timing register */
+	u32 sdsr;	/* Status register */
 };
 
 /*

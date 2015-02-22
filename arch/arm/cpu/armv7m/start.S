@@ -8,7 +8,7 @@
 .globl	reset
 .type reset, %function
 reset:
-	bl	_main
+	b	_main
 
 .globl	c_runtime_cpu_setup
 c_runtime_cpu_setup:

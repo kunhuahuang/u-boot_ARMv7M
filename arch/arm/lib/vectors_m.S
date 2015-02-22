@@ -35,7 +35,6 @@ __invalid_entry:
 	b	do_invalid_entry
 
    .section  .vectors
-
 ENTRY(_start)
 	.long	CONFIG_SYS_INIT_SP_ADDR		@ 0 - Reset stack pointer
 	.long	reset				@ 1 - Reset
@@ -53,6 +52,6 @@ ENTRY(_start)
 	.long	__invalid_entry			@ 13 - Reserved
 	.long	__invalid_entry			@ 14 - PendSV
 	.long	__invalid_entry			@ 15 - SysTick
-	.rept	256 - 16
-	.long	__invalid_entry			@ 16..256 - External Interrupts
+	.rept	255 - 16
+	.long	__invalid_entry			@ 16..255 - External Interrupts
 	.endr
