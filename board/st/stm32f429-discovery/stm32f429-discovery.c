@@ -394,19 +394,23 @@ u32 get_board_rev(void)
 	return 0;
 }
 
-/*
- * Early hardware init.
- */
-int board_init(void)
+int board_early_init_f(void)
 {
 	int res;
-
-	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 	res = uart1_setup_gpio();
 	if(res) {
 		return res;
 	}
+
+	return 0;
+}
+
+int board_init(void)
+{
+	int res;
+
+	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 	res = spi4_setup_gpio();
 	if(res) {
