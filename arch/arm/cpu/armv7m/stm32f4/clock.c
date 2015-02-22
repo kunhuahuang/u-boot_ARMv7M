@@ -11,13 +11,13 @@
 #include <common.h>
 #include <asm/arch/stm32.h>
 
-#define RCC_CR_HSION	(1 << 0)
-#define RCC_CR_HSEON	(1 << 16)
-#define RCC_CR_HSERDY	(1 << 17)
-#define RCC_CR_HSEBYP	(1 << 18)
-#define RCC_CR_CSSON	(1 << 19)
-#define RCC_CR_PLLON	(1 << 24)
-#define RCC_CR_PLLRDY	(1 << 25)
+#define RCC_CR_HSION		(1 << 0)
+#define RCC_CR_HSEON		(1 << 16)
+#define RCC_CR_HSERDY		(1 << 17)
+#define RCC_CR_HSEBYP		(1 << 18)
+#define RCC_CR_CSSON		(1 << 19)
+#define RCC_CR_PLLON		(1 << 24)
+#define RCC_CR_PLLRDY		(1 << 25)
 
 #define RCC_PLLCFGR_PLLM_MASK	0x3F
 #define RCC_PLLCFGR_PLLN_MASK	0x7FC0
@@ -31,14 +31,14 @@
 #define RCC_CFGR_AHB_PSC_MASK	0xF0
 #define RCC_CFGR_APB1_PSC_MASK	0x1C00
 #define RCC_CFGR_APB2_PSC_MASK	0xE000
-#define RCC_CFGR_SW0	(1 << 0)
-#define RCC_CFGR_SW1	(1 << 1)
+#define RCC_CFGR_SW0		(1 << 0)
+#define RCC_CFGR_SW1		(1 << 1)
 #define RCC_CFGR_SW_MASK	0x3
-#define RCC_CFGR_SW_HSI	0
-#define RCC_CFGR_SW_HSE	RCC_CFGR_SW0
-#define RCC_CFGR_SW_PLL	RCC_CFGR_SW1
-#define RCC_CFGR_SWS0	(1 << 2)
-#define RCC_CFGR_SWS1	(1 << 3)
+#define RCC_CFGR_SW_HSI		0
+#define RCC_CFGR_SW_HSE		RCC_CFGR_SW0
+#define RCC_CFGR_SW_PLL		RCC_CFGR_SW1
+#define RCC_CFGR_SWS0		(1 << 2)
+#define RCC_CFGR_SWS1		(1 << 3)
 #define RCC_CFGR_SWS_MASK	0xC
 #define RCC_CFGR_SWS_HSI	0
 #define RCC_CFGR_SWS_HSE	RCC_CFGR_SWS0
@@ -49,43 +49,43 @@
 
 #define RCC_APB1ENR_PWREN	(1 << 28)
 
-#define PWR_CR_VOS0	(1 << 14)
-#define PWR_CR_VOS1	(1 << 15)
-#define PWR_CR_VOS_MASK	0xC000
+#define PWR_CR_VOS0		(1 << 14)
+#define PWR_CR_VOS1		(1 << 15)
+#define PWR_CR_VOS_MASK		0xC000
 #define PWR_CR_VOS_SCALE_MODE_1	(PWR_CR_VOS0 | PWR_CR_VOS1)
 #define PWR_CR_VOS_SCALE_MODE_2	(PWR_CR_VOS1)
 #define PWR_CR_VOS_SCALE_MODE_3	(PWR_CR_VOS0)
 
-#define FLASH_ACR_WS(n)	n
+#define FLASH_ACR_WS(n)		n
 #define FLASH_ACR_PRFTEN	(1 << 8)
-#define FLASH_ACR_ICEN	(1 << 9)
-#define FLASH_ACR_DCEN	(1 << 10)
+#define FLASH_ACR_ICEN		(1 << 9)
+#define FLASH_ACR_DCEN		(1 << 10)
 
 struct pll_psc {
-	u8 pll_m;
-	u16 pll_n;
-	u8 pll_p;
-	u8 pll_q;
-	u8 ahb_psc;
-	u8 apb1_psc;
-	u8 apb2_psc;
+	u8	pll_m;
+	u16	pll_n;
+	u8	pll_p;
+	u8	pll_q;
+	u8	ahb_psc;
+	u8	apb1_psc;
+	u8	apb2_psc;
 };
 
-#define AHB_PSC_1	0
-#define AHB_PSC_2	0x8
-#define AHB_PSC_4	0x9
-#define AHB_PSC_8	0xA
-#define AHB_PSC_16	0xB
-#define AHB_PSC_64	0xC
-#define AHB_PSC_128	0xD
-#define AHB_PSC_256	0xE
-#define AHB_PSC_512	0xF
+#define AHB_PSC_1		0
+#define AHB_PSC_2		0x8
+#define AHB_PSC_4		0x9
+#define AHB_PSC_8		0xA
+#define AHB_PSC_16		0xB
+#define AHB_PSC_64		0xC
+#define AHB_PSC_128		0xD
+#define AHB_PSC_256		0xE
+#define AHB_PSC_512		0xF
 
-#define APB_PSC_1	0
-#define APB_PSC_2	0x4
-#define APB_PSC_4	0x5
-#define APB_PSC_8	0x6
-#define APB_PSC_16	0x7
+#define APB_PSC_1		0
+#define APB_PSC_2		0x4
+#define APB_PSC_4		0x5
+#define APB_PSC_8		0x6
+#define APB_PSC_16		0x7
 
 #if !defined(CONFIG_STM32_HSE_HZ)
 #error "CONFIG_STM32_HSE_HZ not defined!"

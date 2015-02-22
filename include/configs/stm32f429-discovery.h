@@ -76,10 +76,7 @@
 
 #define CONFIG_STM32_HSE_HZ	8000000
 
-/*
- * Number of clock ticks in 1 sec
- */
-#define CONFIG_SYS_HZ			1000
+#define CONFIG_SYS_HZ_CLOCK	1000000	/* Timer is clocked at 1MHz */
 
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size	*/
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
