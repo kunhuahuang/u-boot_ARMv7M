@@ -8,25 +8,35 @@
 #include <common.h>
 #include <serial.h>
 #include <asm/arch/stm32.h>
-#include <asm/arch/stm32_gpio.h>
 
-#define STM32_USART1_BASE	0x40011000 /* APB2 */
+#define STM32_USART1_BASE	(STM32_APB2PERIPH_BASE + 0x1000)
+#define RCC_APB2ENR_USART1EN	(1 << 4)
 
-#define USART_SR_FLAG_RXNE	0x20
-#define USART_SR_FLAG_TXE	0x80
-
-#define USART_BASE	STM32_USART1_BASE
-#define RCC_USART_ENABLE	0x10
+#define USART_BASE		STM32_USART1_BASE
+#define RCC_USART_ENABLE	RCC_APB2ENR_USART1EN
 
 struct stm32_serial {
-	uint32_t USART_SR;
-	uint32_t USART_DR;
-	uint32_t USART_BRR;
-	uint32_t USART_CR1;
-	uint32_t USART_CR2;
-	uint32_t USART_CR3;
-	uint32_t USART_GTPR;
+	u32 sr;
+	u32 dr;
+	u32 brr;
+	u32 cr1;
+	u32 cr2;
+	u32 cr3;
+	u32 gtpr;
 };
+
+#define USART_CR1_RE		(1 << 2)
+#define USART_CR1_TE		(1 << 3)
+#define USART_CR1_UE		(1 << 13)
+
+#define USART_SR_FLAG_RXNE	(1 << 5)
+#define USART_SR_FLAG_TXE	(1 << 7)
+
+#define USART_BRR_F_MASK	0xF
+#define USART_BRR_M_SHIFT	4
+#define USART_BRR_M_MASK	0xFFF0
+
+DECLARE_GLOBAL_DATA_PTR;
 
 static void stm32_serial_setbrg(void)
 {
@@ -35,37 +45,41 @@ static void stm32_serial_setbrg(void)
 
 static int stm32_serial_init(void)
 {
-	volatile struct stm32_serial* base = (struct stm32_serial *)USART_BASE;
+	volatile struct stm32_serial* usart = (struct stm32_serial *)USART_BASE;
+	u32 clock, int_div, frac_div, tmp;
 
-	/* Enable clocks to peripherals (GPIO, USART) */
-	STM32_RCC->apb2enr |= RCC_USART_ENABLE; /* USART2 enable */
+	STM32_RCC->apb2enr |= RCC_USART_ENABLE;
+	clock = clock_get(CLOCK_APB2);
 
-	/* USART configuration */
-	/* for 115.200k program 22.8125 if fpclk = 42MHz */
-	base->USART_BRR = 0x2D9;
-	base->USART_CR1 = 0x0000200C;
+	int_div = (25 * clock) / (4 * gd->baudrate);
+	tmp = ((int_div / 100) << USART_BRR_M_SHIFT) & USART_BRR_M_MASK;
+	frac_div = int_div - (100 * (tmp >> USART_BRR_M_SHIFT));
+	tmp |= (((frac_div * 16) + 50) / 100) & USART_BRR_F_MASK;
+
+	usart->brr = tmp;
+	usart->cr1 = USART_CR1_RE | USART_CR1_TE | USART_CR1_UE;
 
 	return 0;
 }
 
 static int stm32_serial_getc(void)
 {
-	volatile struct stm32_serial* base = (struct stm32_serial *)USART_BASE;
-	while((base->USART_SR & USART_SR_FLAG_RXNE) == 0);
-	return base->USART_DR;
+	volatile struct stm32_serial* usart = (struct stm32_serial *)USART_BASE;
+	while((usart->sr & USART_SR_FLAG_RXNE) == 0);
+	return usart->dr;
 }
 
 static void stm32_serial_putc(const char c)
 {
-	volatile struct stm32_serial* base = (struct stm32_serial *)USART_BASE;
-	while((base->USART_SR & USART_SR_FLAG_TXE) == 0);
-	base->USART_DR = c;
+	volatile struct stm32_serial* usart = (struct stm32_serial *)USART_BASE;
+	while((usart->sr & USART_SR_FLAG_TXE) == 0);
+	usart->dr = c;
 }
 
 static int stm32_serial_tstc(void)
 {
-	volatile struct stm32_serial* base = (struct stm32_serial *)USART_BASE;
-	return (base->USART_SR & USART_SR_FLAG_RXNE);
+	volatile struct stm32_serial* usart = (struct stm32_serial *)USART_BASE;
+	return (usart->sr & USART_SR_FLAG_RXNE);
 }
 
 static struct serial_device stm32_serial_drv = {
