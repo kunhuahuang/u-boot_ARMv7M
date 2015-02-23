@@ -11,7 +11,7 @@
 #include <common.h>
 #include <linux/types.h>
 #include <spi.h>
-#include <asm/arch/stm32_gpio.h>
+#include <asm/arch/gpio.h>
 
 #include "ili9341.h"
 

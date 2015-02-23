@@ -7,7 +7,7 @@
 
 #include <common.h>
 #include <malloc.h>
-#include <asm/arch/stm32_gpio.h>
+#include <asm/arch/gpio.h>
 #include <asm/arch/stm32.h>
 #include <spi.h>
 

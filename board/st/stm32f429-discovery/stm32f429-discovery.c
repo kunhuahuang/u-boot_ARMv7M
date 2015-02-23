@@ -14,7 +14,7 @@
 #include <common.h>
 #include <asm/armv7m.h>
 #include <asm/arch/stm32.h>
-#include <asm/arch/stm32_gpio.h>
+#include <asm/arch/gpio.h>
 #include <asm/arch/fmc.h>
 #include <lcd.h>
 
@@ -22,39 +22,63 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+const struct stm32_gpio_ctl gpio_ctl_gp = {
+	.mode = STM32_GPIO_MODE_OUT,
+	.otype = STM32_GPIO_OTYPE_PP,
+	.speed = STM32_GPIO_SPEED_50M,
+	.pupd = STM32_GPIO_PUPD_NO,
+	.af = STM32_GPIO_AF0
+};
+
 const struct stm32_gpio_dsc lcd_wrx_gpio = {
-		STM32_GPIO_PORT_D, STM32_GPIO_PIN_13
+	STM32_GPIO_PORT_D, STM32_GPIO_PIN_13
+};
+
+const struct stm32_gpio_ctl gpio_ctl_ltdc_af9 = {
+	.mode = STM32_GPIO_MODE_AF,
+	.otype = STM32_GPIO_OTYPE_PP,
+	.speed = STM32_GPIO_SPEED_50M,
+	.pupd = STM32_GPIO_PUPD_NO,
+	.af = STM32_GPIO_AF9
 };
 
 static const struct stm32_gpio_dsc lcd_af9_gpio[] = {
-		{STM32_GPIO_PORT_B, STM32_GPIO_PIN_0},	/* R3 */
-		{STM32_GPIO_PORT_B, STM32_GPIO_PIN_1},	/* R6 */
-		{STM32_GPIO_PORT_G, STM32_GPIO_PIN_10},	/* G3 */
-		{STM32_GPIO_PORT_G, STM32_GPIO_PIN_12},	/* B4 */
+	{STM32_GPIO_PORT_B, STM32_GPIO_PIN_0},	/* R3 */
+	{STM32_GPIO_PORT_B, STM32_GPIO_PIN_1},	/* R6 */
+	{STM32_GPIO_PORT_G, STM32_GPIO_PIN_10},	/* G3 */
+	{STM32_GPIO_PORT_G, STM32_GPIO_PIN_12},	/* B4 */
+};
+
+const struct stm32_gpio_ctl gpio_ctl_ltdc_af14 = {
+	.mode = STM32_GPIO_MODE_AF,
+	.otype = STM32_GPIO_OTYPE_PP,
+	.speed = STM32_GPIO_SPEED_50M,
+	.pupd = STM32_GPIO_PUPD_NO,
+	.af = STM32_GPIO_AF14
 };
 
 static const struct stm32_gpio_dsc lcd_af14_gpio[] = {
-		{STM32_GPIO_PORT_C, STM32_GPIO_PIN_10},	/* R2 */
-		{STM32_GPIO_PORT_A, STM32_GPIO_PIN_11},	/* R4 */
-		{STM32_GPIO_PORT_A, STM32_GPIO_PIN_12},	/* R5 */
-		{STM32_GPIO_PORT_G, STM32_GPIO_PIN_6},	/* R7 */
+	{STM32_GPIO_PORT_C, STM32_GPIO_PIN_10},	/* R2 */
+	{STM32_GPIO_PORT_A, STM32_GPIO_PIN_11},	/* R4 */
+	{STM32_GPIO_PORT_A, STM32_GPIO_PIN_12},	/* R5 */
+	{STM32_GPIO_PORT_G, STM32_GPIO_PIN_6},	/* R7 */
 
-		{STM32_GPIO_PORT_A, STM32_GPIO_PIN_6},	/* G2 */
-		{STM32_GPIO_PORT_B, STM32_GPIO_PIN_10},	/* G4 */
-		{STM32_GPIO_PORT_B, STM32_GPIO_PIN_11},	/* G5 */
-		{STM32_GPIO_PORT_C, STM32_GPIO_PIN_7},	/* G6 */
-		{STM32_GPIO_PORT_D, STM32_GPIO_PIN_3},	/* G7 */
+	{STM32_GPIO_PORT_A, STM32_GPIO_PIN_6},	/* G2 */
+	{STM32_GPIO_PORT_B, STM32_GPIO_PIN_10},	/* G4 */
+	{STM32_GPIO_PORT_B, STM32_GPIO_PIN_11},	/* G5 */
+	{STM32_GPIO_PORT_C, STM32_GPIO_PIN_7},	/* G6 */
+	{STM32_GPIO_PORT_D, STM32_GPIO_PIN_3},	/* G7 */
 
-		{STM32_GPIO_PORT_D, STM32_GPIO_PIN_6},	/* B2 */
-		{STM32_GPIO_PORT_G, STM32_GPIO_PIN_11},	/* B3 */
-		{STM32_GPIO_PORT_A, STM32_GPIO_PIN_3},	/* B5 */
-		{STM32_GPIO_PORT_B, STM32_GPIO_PIN_8},	/* B6 */
-		{STM32_GPIO_PORT_B, STM32_GPIO_PIN_9},	/* B7 */
+	{STM32_GPIO_PORT_D, STM32_GPIO_PIN_6},	/* B2 */
+	{STM32_GPIO_PORT_G, STM32_GPIO_PIN_11},	/* B3 */
+	{STM32_GPIO_PORT_A, STM32_GPIO_PIN_3},	/* B5 */
+	{STM32_GPIO_PORT_B, STM32_GPIO_PIN_8},	/* B6 */
+	{STM32_GPIO_PORT_B, STM32_GPIO_PIN_9},	/* B7 */
 
-		{STM32_GPIO_PORT_C, STM32_GPIO_PIN_6},	/* HSYNC */
-		{STM32_GPIO_PORT_A, STM32_GPIO_PIN_4},	/* VSYNC */
-		{STM32_GPIO_PORT_G, STM32_GPIO_PIN_7},	/* PIXCLK */
-		{STM32_GPIO_PORT_F, STM32_GPIO_PIN_10},	/* DE */
+	{STM32_GPIO_PORT_C, STM32_GPIO_PIN_6},	/* HSYNC */
+	{STM32_GPIO_PORT_A, STM32_GPIO_PIN_4},	/* VSYNC */
+	{STM32_GPIO_PORT_G, STM32_GPIO_PIN_7},	/* PIXCLK */
+	{STM32_GPIO_PORT_F, STM32_GPIO_PIN_10},	/* DE */
 };
 
 static int lcd_setup_gpio(void)
@@ -62,21 +86,18 @@ static int lcd_setup_gpio(void)
 	int i;
 	int rv = 0;
 
-	rv = stm32_gpio_config(&lcd_wrx_gpio,
-			STM32_GPIO_ROLE_GPOUT);
+	rv = stm32_gpio_config(&lcd_wrx_gpio, &gpio_ctl_gp);
 	if (rv)
 		goto out;
 
 	for (i = 0; i < ARRAY_SIZE(lcd_af9_gpio); i++) {
-		rv = stm32_gpio_config(&lcd_af9_gpio[i],
-				STM32_GPIO_ROLE_LTDC_AF9);
+		rv = stm32_gpio_config(&lcd_af9_gpio[i], &gpio_ctl_ltdc_af9);
 		if (rv)
 			goto out;
 	}
 
 	for (i = 0; i < ARRAY_SIZE(lcd_af14_gpio); i++) {
-		rv = stm32_gpio_config(&lcd_af14_gpio[i],
-				STM32_GPIO_ROLE_LTDC_AF14);
+		rv = stm32_gpio_config(&lcd_af14_gpio[i], &gpio_ctl_ltdc_af14);
 		if (rv)
 			goto out;
 	}
@@ -85,15 +106,23 @@ out:
 	return rv;
 }
 
+const struct stm32_gpio_ctl gpio_ctl_spi = {
+	.mode = STM32_GPIO_MODE_AF,
+	.otype = STM32_GPIO_OTYPE_PP,
+	.speed = STM32_GPIO_SPEED_50M,
+	.pupd = STM32_GPIO_PUPD_NO,
+	.af = STM32_GPIO_AF5
+};
+
 static const struct stm32_gpio_dsc spi4_gpio[] = {
-		{STM32_GPIO_PORT_E, STM32_GPIO_PIN_2},	/* SCK */
-		{STM32_GPIO_PORT_E, STM32_GPIO_PIN_5},	/* MISO */
-		{STM32_GPIO_PORT_E, STM32_GPIO_PIN_6}	/* MOSI */
+	{STM32_GPIO_PORT_E, STM32_GPIO_PIN_2},	/* SCK */
+	{STM32_GPIO_PORT_E, STM32_GPIO_PIN_5},	/* MISO */
+	{STM32_GPIO_PORT_E, STM32_GPIO_PIN_6}	/* MOSI */
 };
 
 const struct stm32_gpio_dsc spi4_cs_gpio[] = {
-		{STM32_GPIO_PORT_E, STM32_GPIO_PIN_4},
-		{-1, -1}
+	{STM32_GPIO_PORT_E, STM32_GPIO_PIN_4},
+	{-1, -1}
 };
 
 static int spi4_setup_gpio(void)
@@ -101,14 +130,14 @@ static int spi4_setup_gpio(void)
 	int i;
 	int rv = 0;
 
-	for (i = 0; i < ARRAY_SIZE(spi4_gpio); i++) {
-		rv = stm32_gpio_config(&spi4_gpio[i], STM32_GPIO_ROLE_SPI4);
+	for (i = 0; i < ARRAY_SIZE(spi4_cs_gpio) - 1; i++) {
+		rv = stm32_gpio_config(&spi4_cs_gpio[i], &gpio_ctl_gp);
 		if(rv)
 			goto out;
 	}
 
-	for (i = 0; i < ARRAY_SIZE(spi4_cs_gpio) - 1; i++) {
-		rv = stm32_gpio_config(&spi4_cs_gpio[i], STM32_GPIO_ROLE_GPOUT);
+	for (i = 0; i < ARRAY_SIZE(spi4_gpio); i++) {
+		rv = stm32_gpio_config(&spi4_gpio[i], &gpio_ctl_spi);
 		if(rv)
 			goto out;
 	}
@@ -118,14 +147,14 @@ out:
 }
 
 const struct stm32_gpio_dsc spi5_cs_gpio[] = {
-		{STM32_GPIO_PORT_C, STM32_GPIO_PIN_2},
-		{-1, -1}
+	{STM32_GPIO_PORT_C, STM32_GPIO_PIN_2},
+	{-1, -1}
 };
 
 static const struct stm32_gpio_dsc spi5_gpio[] = {
-		{STM32_GPIO_PORT_F, STM32_GPIO_PIN_7}, /* SCK */
-		{STM32_GPIO_PORT_F, STM32_GPIO_PIN_8}, /* MISO */
-		{STM32_GPIO_PORT_F, STM32_GPIO_PIN_9}, /* MOSI */
+	{STM32_GPIO_PORT_F, STM32_GPIO_PIN_7}, /* SCK */
+	{STM32_GPIO_PORT_F, STM32_GPIO_PIN_8}, /* MISO */
+	{STM32_GPIO_PORT_F, STM32_GPIO_PIN_9}, /* MOSI */
 };
 
 static int spi5_setup_gpio(void)
@@ -134,14 +163,13 @@ static int spi5_setup_gpio(void)
 	int rv = 0;
 
 	for (i = 0; i < ARRAY_SIZE(spi5_cs_gpio) - 1; i++) {
-		rv = stm32_gpio_config(&spi5_cs_gpio[i], STM32_GPIO_ROLE_GPOUT);
+		rv = stm32_gpio_config(&spi5_cs_gpio[i], &gpio_ctl_gp);
 		if(rv)
 			goto out;
 	}
 
 	for (i = 0; i < ARRAY_SIZE(spi5_gpio); i++) {
-		rv = stm32_gpio_config(&spi5_gpio[i],
-				STM32_GPIO_ROLE_SPI5);
+		rv = stm32_gpio_config(&spi5_gpio[i], &gpio_ctl_spi);
 		if (rv)
 			goto out;
 	}
@@ -150,9 +178,17 @@ out:
 	return rv;
 }
 
+const struct stm32_gpio_ctl gpio_ctl_usart = {
+	.mode = STM32_GPIO_MODE_AF,
+	.otype = STM32_GPIO_OTYPE_PP,
+	.speed = STM32_GPIO_SPEED_50M,
+	.pupd = STM32_GPIO_PUPD_UP,
+	.af = STM32_GPIO_AF7
+};
+
 static const struct stm32_gpio_dsc usart1_gpio[] = {
-		{STM32_GPIO_PORT_A, STM32_GPIO_PIN_9},
-		{STM32_GPIO_PORT_A, STM32_GPIO_PIN_10},
+	{STM32_GPIO_PORT_A, STM32_GPIO_PIN_9},	/* TX */
+	{STM32_GPIO_PORT_A, STM32_GPIO_PIN_10},	/* RX */
 };
 
 int uart1_setup_gpio(void)
@@ -161,7 +197,7 @@ int uart1_setup_gpio(void)
 	int rv = 0;
 
 	for (i = 0; i < ARRAY_SIZE(usart1_gpio); i++) {
-		rv = stm32_gpio_config(&usart1_gpio[i], STM32_GPIO_ROLE_USART1);
+		rv = stm32_gpio_config(&usart1_gpio[i], &gpio_ctl_usart);
 		if(rv)
 			goto out;
 	}
@@ -183,6 +219,14 @@ int overwrite_console(void)
 {
 	return 1;
 }
+
+const struct stm32_gpio_ctl gpio_ctl_fmc = {
+	.mode = STM32_GPIO_MODE_AF,
+	.otype = STM32_GPIO_OTYPE_PP,
+	.speed = STM32_GPIO_SPEED_100M,
+	.pupd = STM32_GPIO_PUPD_NO,
+	.af = STM32_GPIO_AF12
+};
 
 static const struct stm32_gpio_dsc ext_ram_fsmc_fmc_gpio[] = {
 	/* Chip is LQFP144, see DM00077036.pdf for details */
@@ -232,8 +276,7 @@ static int fmc_fsmc_setup_gpio(void)
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(ext_ram_fsmc_fmc_gpio); i++) {
-		rv = stm32_gpio_config(&ext_ram_fsmc_fmc_gpio[i],
-				STM32_GPIO_ROLE_FMC);
+		rv = stm32_gpio_config(&ext_ram_fsmc_fmc_gpio[i], &gpio_ctl_fmc);
 		if (rv)
 			goto out;
 	}
@@ -245,11 +288,11 @@ out:
 /*
  * STM32 RCC FMC specific definitions
  */
-#define STM32_RCC_ENR_FMC		(1 << 0)	/* FMC module clock  */
+#define STM32_RCC_ENR_FMC	(1 << 0)	/* FMC module clock  */
 
 static inline u32 _ns2clk(u32 ns, u32 freq)
 {
-	uint32_t tmp = freq/1000000;
+	u32 tmp = freq/1000000;
 	return (tmp * ns) / 1000;
 }
 
@@ -258,12 +301,14 @@ static inline u32 _ns2clk(u32 ns, u32 freq)
 /*
  * Following are timings for IS42S16400J, from corresponding datasheet
  */
-#define SDRAM_CAS	3
+#define SDRAM_CAS	3	/* 3 cycles */
 #define SDRAM_NB	1	/* Number of banks */
 #define SDRAM_MWID	1	/* 16 bit memory */
 
 #define SDRAM_NR	0x1	/* 12-bit row */
 #define SDRAM_NC	0x0	/* 8-bit col */
+#define SDRAM_RBURST	0x1	/* Single read requests always as bursts */
+#define SDRAM_RPIPE	0x0	/* No HCLK clock cycle delay */
 
 #define SDRAM_TRRD	(NS2CLK(14) - 1)
 #define SDRAM_TRCD	(NS2CLK(15) - 1)
@@ -280,11 +325,16 @@ static inline u32 _ns2clk(u32 ns, u32 freq)
 #define SDRAM_TXSR	(NS2CLK(70)-1) 	/* Row cycle time after precharge */
 #define SDRAM_TMRD	(3 - 1)		/* Page 10, Mode Register Set */
 
-/* Last data in to row precharge, need also comply ineq on page 1648 */
+/* Last data-in to row precharge, need also comply ineq from RM 37.7.5 */
 #define SDRAM_TWR	max(\
 	(int)max((int)SDRAM_TRDL, (int)(SDRAM_TRAS - SDRAM_TRCD - 1)), \
 	(int)(SDRAM_TRC - SDRAM_TRCD - SDRAM_TRP - 2)\
 )
+
+#define SDRAM_MODE_BL_SHIFT	0
+#define SDRAM_MODE_CAS_SHIFT	4
+#define SDRAM_MODE_BL		0
+#define SDRAM_MODE_CAS		SDRAM_CAS
 
 int dram_init(void)
 {
@@ -295,9 +345,6 @@ int dram_init(void)
 	if(rv)
 		return rv;
 
-	/*
-	 * Enable FMC interface clock
-	 */
 	STM32_RCC->ahb3enr |= STM32_RCC_ENR_FMC;
 
 	/*
@@ -306,33 +353,33 @@ int dram_init(void)
 	freq = clock_get(CLOCK_AHB) / CONFIG_SYS_RAM_FREQ_DIV;
 
 	STM32_SDRAM_FMC->sdcr1 = (
-		CONFIG_SYS_RAM_FREQ_DIV << FMC_SDCR_SDCLK_SHIFT |
-		0 << FMC_SDCR_RPIPE_SHIFT |
-		1 << FMC_SDCR_RBURST_SHIFT
+		CONFIG_SYS_RAM_FREQ_DIV << FMC_SDCR_SDCLK_SHIFT
+		| SDRAM_RPIPE << FMC_SDCR_RPIPE_SHIFT
+		| SDRAM_RBURST << FMC_SDCR_RBURST_SHIFT
 	);
 	STM32_SDRAM_FMC->sdcr2 = (
-		CONFIG_SYS_RAM_FREQ_DIV << FMC_SDCR_SDCLK_SHIFT |
-		SDRAM_CAS << FMC_SDCR_CAS_SHIFT |
-		SDRAM_NB << FMC_SDCR_NB_SHIFT |
-		SDRAM_MWID << FMC_SDCR_MWID_SHIFT |
-		SDRAM_NR << FMC_SDCR_NR_SHIFT |
-		SDRAM_NC << FMC_SDCR_NC_SHIFT |
-		0 << FMC_SDCR_RPIPE_SHIFT |
-		1 << FMC_SDCR_RBURST_SHIFT
+		CONFIG_SYS_RAM_FREQ_DIV << FMC_SDCR_SDCLK_SHIFT
+		| SDRAM_CAS << FMC_SDCR_CAS_SHIFT
+		| SDRAM_NB << FMC_SDCR_NB_SHIFT
+		| SDRAM_MWID << FMC_SDCR_MWID_SHIFT
+		| SDRAM_NR << FMC_SDCR_NR_SHIFT
+		| SDRAM_NC << FMC_SDCR_NC_SHIFT
+		| SDRAM_RPIPE << FMC_SDCR_RPIPE_SHIFT
+		| SDRAM_RBURST << FMC_SDCR_RBURST_SHIFT
 	);
 
 	STM32_SDRAM_FMC->sdtr2 = (
-		SDRAM_TRP << FMC_SDTR_TRP_SHIFT |
-		SDRAM_TRC << FMC_SDTR_TRC_SHIFT
+		SDRAM_TRP << FMC_SDTR_TRP_SHIFT
+		| SDRAM_TRC << FMC_SDTR_TRC_SHIFT
 	);
 	STM32_SDRAM_FMC->sdtr2 = (
-		SDRAM_TRCD << FMC_SDTR_TRCD_SHIFT |
-		SDRAM_TRP << FMC_SDTR_TRP_SHIFT |
-		SDRAM_TWR << FMC_SDTR_TWR_SHIFT |
-		SDRAM_TRC << FMC_SDTR_TRC_SHIFT |
-		SDRAM_TRAS << FMC_SDTR_TRAS_SHIFT |
-		SDRAM_TXSR << FMC_SDTR_TXSR_SHIFT |
-		SDRAM_TMRD << FMC_SDTR_TMRD_SHIFT
+		SDRAM_TRCD << FMC_SDTR_TRCD_SHIFT
+		| SDRAM_TRP << FMC_SDTR_TRP_SHIFT
+		| SDRAM_TWR << FMC_SDTR_TWR_SHIFT
+		| SDRAM_TRC << FMC_SDTR_TRC_SHIFT
+		| SDRAM_TRAS << FMC_SDTR_TRAS_SHIFT
+		| SDRAM_TXSR << FMC_SDTR_TXSR_SHIFT
+		| SDRAM_TMRD << FMC_SDTR_TMRD_SHIFT
 	);
 
 	STM32_SDRAM_FMC->sdcmr = FMC_SDCMR_BANK_2 | FMC_SDCMR_MODE_START_CLOCK;
@@ -345,25 +392,15 @@ int dram_init(void)
 	udelay(100);
 	FMC_BUSY_WAIT();
 
-	STM32_SDRAM_FMC->sdcmr = (
-		FMC_SDCMR_BANK_2 | FMC_SDCMR_MODE_AUTOREFRESH |
-		7 << FMC_SDCMR_NRFS_SHIFT
-	);
+	STM32_SDRAM_FMC->sdcmr = (FMC_SDCMR_BANK_2 | FMC_SDCMR_MODE_AUTOREFRESH
+			| 7 << FMC_SDCMR_NRFS_SHIFT);
 
 	udelay(100);
 	FMC_BUSY_WAIT();
 
-#define SDRAM_MODE_BL_SHIFT		0
-#define SDRAM_MODE_CAS_SHIFT		4
-
-#define SDRAM_MODE_BL			0
-#define SDRAM_MODE_CAS			SDRAM_CAS
-
 	STM32_SDRAM_FMC->sdcmr = FMC_SDCMR_BANK_2 |
-	(
-		SDRAM_MODE_BL << SDRAM_MODE_BL_SHIFT |
-		SDRAM_MODE_CAS << SDRAM_MODE_CAS_SHIFT
-	) << FMC_SDCMR_MODE_REGISTER_SHIFT | FMC_SDCMR_MODE_WRITE_MODE;
+	(SDRAM_MODE_BL << SDRAM_MODE_BL_SHIFT | SDRAM_MODE_CAS << SDRAM_MODE_CAS_SHIFT)
+	<< FMC_SDCMR_MODE_REGISTER_SHIFT | FMC_SDCMR_MODE_WRITE_MODE;
 
 	udelay(100);
 
@@ -381,8 +418,6 @@ int dram_init(void)
 	 */
 	gd->bd->bi_dram[0].start = CONFIG_SYS_RAM_BASE;
 	gd->bd->bi_dram[0].size  = CONFIG_SYS_RAM_SIZE;
-
-	rv = 0;
 
 	gd->ram_size = CONFIG_SYS_RAM_SIZE;
 
