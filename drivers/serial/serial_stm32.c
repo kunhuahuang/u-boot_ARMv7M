@@ -48,8 +48,14 @@ static int stm32_serial_init(void)
 	volatile struct stm32_serial* usart = (struct stm32_serial *)USART_BASE;
 	u32 clock, int_div, frac_div, tmp;
 
-	STM32_RCC->apb2enr |= RCC_USART_ENABLE;
-	clock = clock_get(CLOCK_APB2);
+	if((USART_BASE & STM32_BUS_MASK) == STM32_APB1PERIPH_BASE) {
+		STM32_RCC->apb1enr |= RCC_USART_ENABLE;
+		clock = clock_get(CLOCK_APB1);
+	} else if((USART_BASE & STM32_BUS_MASK) == STM32_APB2PERIPH_BASE) {
+		STM32_RCC->apb2enr |= RCC_USART_ENABLE;
+		clock = clock_get(CLOCK_APB2);
+	} else
+		return -1;
 
 	int_div = (25 * clock) / (4 * gd->baudrate);
 	tmp = ((int_div / 100) << USART_BRR_M_SHIFT) & USART_BRR_M_MASK;
