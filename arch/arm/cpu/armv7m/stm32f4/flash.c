@@ -62,16 +62,15 @@ void flash_print_info(flash_info_t *info)
 	}
 
 	printf("  Size: %ld MB in %d Sectors\n",
-	info->size >> 20, info->sector_count);
+			info->size >> 20, info->sector_count);
 
 	printf("  Sector Start Addresses:");
 	for (i = 0; i < info->sector_count; ++i) {
 		if ((i % 5) == 0)
 			printf("\n   ");
 		printf(" %08lX%s",
-		info->start[i],
-		info->protect[i] ? " (RO)" : "     "
-		);
+				info->start[i],
+				info->protect[i] ? " (RO)" : "     ");
 	}
 	printf("\n");
 	return;
@@ -83,7 +82,7 @@ int flash_erase(flash_info_t *info, int first, int last)
 	int i;
 
 	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
-		if(info == &flash_info[i]) {
+		if (info == &flash_info[i]) {
 			bank = i;
 			break;
 		}
@@ -94,8 +93,8 @@ int flash_erase(flash_info_t *info, int first, int last)
 	stm32f4_flash_lock(0);
 
 	for (i = first; i <= last; i++) {
-		while (STM32_FLASH->sr & STM32_FLASH_SR_BSY)
-		{}
+		while (STM32_FLASH->sr & STM32_FLASH_SR_BSY) {
+		}
 
 		if (bank == 0) {
 			STM32_FLASH->cr |= (i << STM32_FLASH_CR_SNB_OFFSET);
@@ -109,8 +108,8 @@ int flash_erase(flash_info_t *info, int first, int last)
 		STM32_FLASH->cr |= STM32_FLASH_CR_SER;
 		STM32_FLASH->cr |= STM32_FLASH_CR_STRT;
 
-		while (STM32_FLASH->sr & STM32_FLASH_SR_BSY)
-		{}
+		while (STM32_FLASH->sr & STM32_FLASH_SR_BSY) {
+		}
 
 		STM32_FLASH->cr &= (~STM32_FLASH_CR_SER);
 		stm32f4_flash_lock(1);
@@ -123,8 +122,8 @@ int write_buff(flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 {
 	ulong i;
 
-	while (STM32_FLASH->sr & STM32_FLASH_SR_BSY)
-	{}
+	while (STM32_FLASH->sr & STM32_FLASH_SR_BSY) {
+	}
 
 	stm32f4_flash_lock(0);
 
@@ -132,8 +131,8 @@ int write_buff(flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 	/* To make things simple use byte writes only */
 	for (i = 0; i < cnt; i++) {
 		*(uchar *)(addr + i) = src[i];
-		while (STM32_FLASH->sr & STM32_FLASH_SR_BSY)
-		{}
+		while (STM32_FLASH->sr & STM32_FLASH_SR_BSY) {
+		}
 	}
 	STM32_FLASH->cr &= (~STM32_FLASH_CR_PG);
 	stm32f4_flash_lock(1);

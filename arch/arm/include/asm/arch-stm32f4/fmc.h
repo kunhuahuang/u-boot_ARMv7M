@@ -68,8 +68,8 @@ struct stm32_fmc_regs {
 
 #define FMC_BUSY_WAIT()		do { \
 		__asm__ __volatile__ ("dsb" : : : "memory"); \
-		while (STM32_SDRAM_FMC->sdsr & FMC_SDSR_BUSY) \
-		{} \
+		while (STM32_SDRAM_FMC->sdsr & FMC_SDSR_BUSY) { \
+		} \
 	} while (0)
 
 

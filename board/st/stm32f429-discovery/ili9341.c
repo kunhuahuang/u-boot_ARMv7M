@@ -162,9 +162,8 @@ static void ili9341_poweron(void)
 int ili9341_init(void)
 {
 	ili9341_spi = spi_setup_slave(4, 0, 5600000, SPI_MODE_0);
-	if (!ili9341_spi) {
+	if (!ili9341_spi)
 		return 1;
-	}
 	spi_claim_bus(ili9341_spi);
 	ili9341_poweron();
 

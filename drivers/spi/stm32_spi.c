@@ -136,8 +136,8 @@ int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {
 	unsigned int i = 0;
 
-	while (spi_cs_array[bus][i].pin != -1
-		&& spi_cs_array[bus][i].port != -1)
+	while (spi_cs_array[bus][i].pin != -1 &&
+		spi_cs_array[bus][i].port != -1)
 		i++;
 
 	if ((cs + 1) > i)
@@ -192,7 +192,7 @@ void spi_free_slave(struct spi_slave *slave)
 int spi_claim_bus(struct spi_slave *slave)
 {
 	volatile struct stm32_spi *spi =
-			(struct stm32_spi*)spi_bases[slave->bus];
+			(struct stm32_spi *)spi_bases[slave->bus];
 
 	spi->cr1 |= SPI_CR1_SPE;
 
@@ -224,11 +224,11 @@ int  spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 			value = *txp++;
 		else
 			value = 0xFF;
-		while ((spi->sr & SPI_SR_TXE) == 0)
-		{}
+		while ((spi->sr & SPI_SR_TXE) == 0) {
+		}
 		spi->dr = value;
-		while ((spi->sr & SPI_SR_RXNE) == 0)
-		{}
+		while ((spi->sr & SPI_SR_RXNE) == 0) {
+		}
 		value = spi->dr;
 		if (rxp)
 			*rxp++ = value;
@@ -275,7 +275,8 @@ void spi_set_speed(struct spi_slave *slave, uint hz)
 		if (spi_clk <= hz) {
 			spi->cr1 |= (i << SPI_CR1_BR_SHIFT);
 			if (gd->have_console)
-				printf("stm32_spi: spi %d clock set to %d\n", slave->bus, spi_clk);
+				printf("stm32_spi: spi %d clock set to %d\n",
+					slave->bus, spi_clk);
 			break;
 		}
 	}
