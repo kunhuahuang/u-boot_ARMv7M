@@ -79,14 +79,15 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void lcd_ctrl_init(void *lcdbase)
 {
-	volatile struct stm32_ltdc *ltdc = (struct stm32_ltdc*)STM32_LTDC_BASE;
+	volatile struct stm32_ltdc *ltdc = (struct stm32_ltdc *)STM32_LTDC_BASE;
 
 	STM32_RCC->apb2enr |= (1 << 26); /* ltdc en */
 
 	STM32_RCC->pllsaicfgr = 0x40003000;
 	STM32_RCC->dckcfgr |= (1 << 17);
 	STM32_RCC->cr |= (1 << 28);
-	while((STM32_RCC->cr & (1 << 29)) == 0);
+	while ((STM32_RCC->cr & (1 << 29)) == 0)
+	{}
 
 	ltdc->sscr = (9 << 16) | 1;
 	ltdc->bpcr = (29 << 16) | 3;
@@ -113,10 +114,8 @@ void lcd_ctrl_init(void *lcdbase)
 
 void lcd_enable(void)
 {
-
 }
 
 void lcd_setcolreg(ushort regno, ushort red, ushort green, ushort blue)
 {
-
 }

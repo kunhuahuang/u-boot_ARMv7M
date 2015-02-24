@@ -29,6 +29,6 @@ void reset_cpu(ulong addr)
 	 * Perform reset but keep priority group unchanged.
 	 */
 	V7M_SCB->aircr = (V7M_AIRCR_VECTKEY << V7M_AIRCR_VECTKEY_SHIFT)
-			| (V7M_SCB->aircr & (V7M_AIRCR_PRIGROUP_MSK << V7M_AIRCR_PRIGROUP_SHIFT))
+			| (V7M_SCB->aircr & V7M_AIRCR_PRIGROUP_MSK)
 			| V7M_AIRCR_SYSRESET;
 }

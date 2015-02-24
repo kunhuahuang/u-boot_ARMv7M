@@ -39,12 +39,12 @@ static const uint32_t spi_rcc_en[] = {
  * the CS arrays are declared as weak symbols. Define your own arrays
  * in your board.c
  */
-struct stm32_gpio_dsc spi1_cs_gpio[] __attribute__((weak)) = {{-1, -1}};
-struct stm32_gpio_dsc spi2_cs_gpio[] __attribute__((weak)) = {{-1, -1}};
-struct stm32_gpio_dsc spi3_cs_gpio[] __attribute__((weak)) = {{-1, -1}};
-struct stm32_gpio_dsc spi4_cs_gpio[] __attribute__((weak)) = {{-1, -1}};
-struct stm32_gpio_dsc spi5_cs_gpio[] __attribute__((weak)) = {{-1, -1}};
-struct stm32_gpio_dsc spi6_cs_gpio[] __attribute__((weak)) = {{-1, -1}};
+struct stm32_gpio_dsc spi1_cs_gpio[] __attribute__((weak)) = { {-1, -1} };
+struct stm32_gpio_dsc spi2_cs_gpio[] __attribute__((weak)) = { {-1, -1} };
+struct stm32_gpio_dsc spi3_cs_gpio[] __attribute__((weak)) = { {-1, -1} };
+struct stm32_gpio_dsc spi4_cs_gpio[] __attribute__((weak)) = { {-1, -1} };
+struct stm32_gpio_dsc spi5_cs_gpio[] __attribute__((weak)) = { {-1, -1} };
+struct stm32_gpio_dsc spi6_cs_gpio[] __attribute__((weak)) = { {-1, -1} };
 
 static const struct stm32_gpio_dsc *spi_cs_array[] = {
 		spi1_cs_gpio, spi2_cs_gpio, spi3_cs_gpio,
@@ -95,42 +95,37 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void spi_init(void)
 {
-
 }
 
 static int spi_cfg_stm32(struct spi_slave *slave,
 		unsigned int cs, unsigned int max_hz, unsigned int mode)
 {
-	volatile struct stm32_spi* spi =
-			(struct stm32_spi*)spi_bases[slave->bus];
+	volatile struct stm32_spi *spi =
+			(struct stm32_spi *)spi_bases[slave->bus];
 
 	/* SPI2 and SPI3 are on the APB1 */
-	if(slave->bus == 1 || slave->bus == 2) {
+	if (slave->bus == 1 || slave->bus == 2)
 		STM32_RCC->apb1enr |= spi_rcc_en[slave->bus];
-	} else {
+	else
 		STM32_RCC->apb2enr |= spi_rcc_en[slave->bus];
-	}
 
 	spi->cr1 = SPI_CR1_MSTR | SPI_CR1_SSI | SPI_CR1_SSM;
 	spi->i2scfgr &= (uint16_t)(~SPI_I2SCFGR_I2SMOD);
 
-	if(mode & SPI_CPHA) {
+	if (mode & SPI_CPHA)
 		spi->cr1 |= SPI_CR1_CPHA;
-	} else {
+	else
 		spi->cr1 &= (uint16_t)(~SPI_CR1_CPHA);
-	}
 
-	if(mode & SPI_CPOL) {
+	if (mode & SPI_CPOL)
 		spi->cr1 |= SPI_CR1_CPOL;
-	} else {
+	else
 		spi->cr1 &= (uint16_t)(~SPI_CR1_CPOL);
-	}
 
-	if(mode & SPI_LSB_FIRST) {
+	if (mode & SPI_LSB_FIRST)
 		spi->cr1 |= SPI_CR1_LSBFIRST;
-	} else {
+	else
 		spi->cr1 &= (uint16_t)(~SPI_CR1_LSBFIRST);
-	}
 
 	spi_set_speed(slave, max_hz);
 
@@ -141,15 +136,14 @@ int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {
 	unsigned int i = 0;
 
-	while(spi_cs_array[bus][i].pin != -1 && spi_cs_array[bus][i].port != -1) {
+	while (spi_cs_array[bus][i].pin != -1
+		&& spi_cs_array[bus][i].port != -1)
 		i++;
-	}
 
-	if((cs + 1) > i) {
+	if ((cs + 1) > i)
 		return 0;
-	} else {
+	else
 		return 1;
-	}
 }
 
 static inline struct stm32_spi_slave *to_stm32_spi_slave(struct spi_slave *slave)
@@ -163,12 +157,11 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	struct stm32_spi_slave *stm32_slave;
 	int ret;
 
-	if(bus > 5)
+	if (bus > 5)
 		return NULL;
 
-	if(!spi_cs_is_valid(bus, cs)) {
+	if (!spi_cs_is_valid(bus, cs))
 		return NULL;
-	}
 
 	stm32_slave = spi_alloc_slave(struct stm32_spi_slave, bus, cs);
 	if (!stm32_slave) {
@@ -180,9 +173,8 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 
 	ret = spi_cfg_stm32(&stm32_slave->slave, cs, max_hz, mode);
 	if (ret) {
-		if(gd->have_console) {
+		if (gd->have_console)
 			printf("stm32_spi: cannot setup SPI controller\n");
-		}
 		free(stm32_slave);
 		return NULL;
 	}
@@ -199,7 +191,7 @@ void spi_free_slave(struct spi_slave *slave)
 
 int spi_claim_bus(struct spi_slave *slave)
 {
-	volatile struct stm32_spi* spi =
+	volatile struct stm32_spi *spi =
 			(struct stm32_spi*)spi_bases[slave->bus];
 
 	spi->cr1 |= SPI_CR1_SPE;
@@ -217,25 +209,26 @@ void spi_release_bus(struct spi_slave *slave)
 int  spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		void *din, unsigned long flags)
 {
-	volatile struct stm32_spi* spi =
-			(struct stm32_spi*)spi_bases[slave->bus];
+	volatile struct stm32_spi *spi =
+			(struct stm32_spi *)spi_bases[slave->bus];
 	unsigned int	len;
 	const u8	*txp = dout;
 	u8 *rxp = din;
 	u8 value;
 
-	if (bitlen == 0) {
+	if (bitlen == 0)
 		return 0;
-	}
 
 	for (len = bitlen / 8; len > 0; len--) {
 		if (txp)
 			value = *txp++;
 		else
 			value = 0xFF;
-		while((spi->sr & SPI_SR_TXE) == 0);
+		while ((spi->sr & SPI_SR_TXE) == 0)
+		{}
 		spi->dr = value;
-		while((spi->sr & SPI_SR_RXNE) == 0);
+		while ((spi->sr & SPI_SR_RXNE) == 0)
+		{}
 		value = spi->dr;
 		if (rxp)
 			*rxp++ = value;
@@ -248,45 +241,41 @@ void spi_cs_activate(struct spi_slave *slave)
 {
 	struct stm32_spi_slave *stm32_slave = to_stm32_spi_slave(slave);
 
-	if(stm32_slave->cs_pol == 0) {
+	if (stm32_slave->cs_pol == 0)
 		stm32_gpout_set(&spi_cs_array[slave->bus][slave->cs], 0);
-	} else {
+	else
 		stm32_gpout_set(&spi_cs_array[slave->bus][slave->cs], 1);
-	}
 }
 
 void spi_cs_deactivate(struct spi_slave *slave)
 {
 	struct stm32_spi_slave *stm32_slave = to_stm32_spi_slave(slave);
 
-	if(stm32_slave->cs_pol == 0) {
+	if (stm32_slave->cs_pol == 0)
 		stm32_gpout_set(&spi_cs_array[slave->bus][slave->cs], 1);
-	} else {
+	else
 		stm32_gpout_set(&spi_cs_array[slave->bus][slave->cs], 0);
-	}
 }
 
 void spi_set_speed(struct spi_slave *slave, uint hz)
 {
-	volatile struct stm32_spi* spi =
-			(struct stm32_spi*)spi_bases[slave->bus];
+	volatile struct stm32_spi *spi =
+			(struct stm32_spi *)spi_bases[slave->bus];
 	int apb_clk, i;
 
-	if(slave->bus == 1 || slave->bus == 2) {
+	if (slave->bus == 1 || slave->bus == 2)
 		apb_clk = clock_get(CLOCK_APB1);
-	} else {
+	else
 		apb_clk = clock_get(CLOCK_APB2);
-	}
 
 	spi->cr1 &= (~SPI_CR1_BR_MASK);
 
-	for(i = 0; i < 8; i++) {
+	for (i = 0; i < 8; i++) {
 		int spi_clk = apb_clk / (1 << (i + 1));
-		if(spi_clk <= hz) {
+		if (spi_clk <= hz) {
 			spi->cr1 |= (i << SPI_CR1_BR_SHIFT);
-			if(gd->have_console) {
+			if (gd->have_console)
 				printf("stm32_spi: spi %d clock set to %d\n", slave->bus, spi_clk);
-			}
 			break;
 		}
 	}

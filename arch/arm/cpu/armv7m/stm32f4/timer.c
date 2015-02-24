@@ -53,7 +53,8 @@ int timer_init(void)
 	if (clock_get(CLOCK_AHB) == clock_get(CLOCK_APB1))
 		tim->psc = (clock_get(CLOCK_APB1) / CONFIG_SYS_HZ_CLOCK) - 1;
 	else
-		tim->psc = ((clock_get(CLOCK_APB1) * 2) / CONFIG_SYS_HZ_CLOCK) - 1;
+		tim->psc = ((clock_get(CLOCK_APB1) * 2) / CONFIG_SYS_HZ_CLOCK)
+			- 1;
 
 	tim->arr = 0xFFFFFFFF;
 	tim->cr1 = TIM_CR1_CEN;
@@ -92,7 +93,7 @@ unsigned long long get_ticks(void)
 void reset_timer(void)
 {
 	volatile struct stm32_tim2_5 *tim =
-			(struct stm32_tim2_5*)STM32_TIM2_BASE;
+			(struct stm32_tim2_5 *)STM32_TIM2_BASE;
 
 	gd->arch.lastinc = tim->cnt;
 	gd->arch.tbl = 0;
