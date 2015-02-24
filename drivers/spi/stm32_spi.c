@@ -277,7 +277,7 @@ void spi_set_speed(struct spi_slave *slave, uint hz)
 			spi->cr1 |= (i << SPI_CR1_BR_SHIFT);
 			if (gd->have_console)
 				printf("stm32_spi: spi %d clock set to %d\n",
-					slave->bus, spi_clk);
+				       slave->bus, spi_clk);
 			break;
 		}
 	}

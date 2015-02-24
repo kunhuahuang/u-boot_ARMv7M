@@ -79,15 +79,15 @@ struct stm32_flash_regs {
  * Registers access macros
  */
 #define STM32_RCC_BASE		(STM32_AHB1PERIPH_BASE + 0x3800)
-#define STM32_RCC			((volatile struct stm32_rcc_regs *) \
+#define STM32_RCC			((volatile struct stm32_rcc_regs *)\
 							STM32_RCC_BASE)
 
 #define STM32_PWR_BASE		(STM32_APB1PERIPH_BASE + 0x7000)
-#define STM32_PWR			((volatile struct stm32_pwr_regs *) \
+#define STM32_PWR			((volatile struct stm32_pwr_regs *)\
 							STM32_PWR_BASE)
 
 #define STM32_FLASH_BASE	(STM32_AHB1PERIPH_BASE + 0x3C00)
-#define STM32_FLASH		((volatile struct stm32_flash_regs *) \
+#define STM32_FLASH		((volatile struct stm32_flash_regs *)\
 							STM32_FLASH_BASE)
 
 #define STM32_FLASH_SR_BSY		(1 << 16)
