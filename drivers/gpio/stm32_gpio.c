@@ -125,7 +125,7 @@ int stm32_gpin_get(const struct stm32_gpio_dsc *dsc)
 	}
 
 	gpio_regs = (struct stm32_gpio_regs *)io_base[dsc->port];
-	rv = gpio_regs->idr & dsc->pin;
+	rv = gpio_regs->idr & (1 << dsc->pin);
 out:
 	return rv;
 }
