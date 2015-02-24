@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
 #include <asm/errno.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/gpio.h>
@@ -50,7 +51,7 @@ struct stm32_gpio_regs {
 int stm32_gpio_config(const struct stm32_gpio_dsc *dsc,
 		const struct stm32_gpio_ctl *ctl)
 {
-	volatile struct stm32_gpio_regs	*gpio_regs;
+	struct stm32_gpio_regs *gpio_regs;
 	u32 i;
 	int rv;
 
@@ -65,25 +66,25 @@ int stm32_gpio_config(const struct stm32_gpio_dsc *dsc,
 
 	gpio_regs = (struct stm32_gpio_regs *)io_base[dsc->port];
 
-	STM32_RCC->ahb1enr |= 1 << dsc->port;
+	setbits_le32(&STM32_RCC->ahb1enr, 1 << dsc->port);
 
 	i = (dsc->pin & 0x07) * 4;
-	gpio_regs->afr[dsc->pin >> 3] &= ~(0xF << i);
-	gpio_regs->afr[dsc->pin >> 3] |= ctl->af << i;
+	clrbits_le32(&gpio_regs->afr[dsc->pin >> 3], (0xF << i));
+	setbits_le32(&gpio_regs->afr[dsc->pin >> 3], ctl->af << i);
 
 	i = dsc->pin * 2;
 
-	gpio_regs->moder &= ~(0x3 << i);
-	gpio_regs->moder |= ctl->mode << i;
+	clrbits_le32(&gpio_regs->moder, (0x3 << i));
+	setbits_le32(&gpio_regs->moder, ctl->mode << i);
 
-	gpio_regs->otyper &= ~(0x3 << i);
-	gpio_regs->otyper |= ctl->otype << i;
+	clrbits_le32(&gpio_regs->otyper, (0x3 << i));
+	setbits_le32(&gpio_regs->otyper, ctl->otype << i);
 
-	gpio_regs->ospeedr &= ~(0x3 << i);
-	gpio_regs->ospeedr |= ctl->speed << i;
+	clrbits_le32(&gpio_regs->ospeedr, (0x3 << i));
+	setbits_le32(&gpio_regs->ospeedr, ctl->speed << i);
 
-	gpio_regs->pupdr &= ~(0x3 << i);
-	gpio_regs->pupdr |= ctl->pupd << i;
+	clrbits_le32(&gpio_regs->pupdr, (0x3 << i));
+	setbits_le32(&gpio_regs->pupdr, ctl->pupd << i);
 
 	rv = 0;
 out:
@@ -92,7 +93,7 @@ out:
 
 int stm32_gpout_set(const struct stm32_gpio_dsc *dsc, int state)
 {
-	volatile struct stm32_gpio_regs	*gpio_regs;
+	struct stm32_gpio_regs	*gpio_regs;
 	int rv;
 
 	if (CHECK_DSC(dsc)) {
@@ -103,9 +104,10 @@ int stm32_gpout_set(const struct stm32_gpio_dsc *dsc, int state)
 	gpio_regs = (struct stm32_gpio_regs *)io_base[dsc->port];
 
 	if (state)
-		gpio_regs->bsrr = 1 << dsc->pin;	/* Set */
+		writel(1 << dsc->pin, &gpio_regs->bsrr);
 	else
-		gpio_regs->bsrr = 1 << (dsc->pin + 16);	/* Reset */
+		writel(1 << (dsc->pin + 16), &gpio_regs->bsrr);
+
 	rv = 0;
 out:
 	return rv;
@@ -113,7 +115,7 @@ out:
 
 int stm32_gpin_get(const struct stm32_gpio_dsc *dsc)
 {
-	volatile struct stm32_gpio_regs	*gpio_regs;
+	struct stm32_gpio_regs	*gpio_regs;
 	int rv;
 
 	if (CHECK_DSC(dsc)) {
@@ -122,7 +124,7 @@ int stm32_gpin_get(const struct stm32_gpio_dsc *dsc)
 	}
 
 	gpio_regs = (struct stm32_gpio_regs *)io_base[dsc->port];
-	rv = gpio_regs->idr & (1 << dsc->pin);
+	rv = readl(&gpio_regs->idr) & (1 << dsc->pin);
 out:
 	return rv;
 }
