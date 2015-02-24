@@ -82,8 +82,8 @@
 
 #define CONFIG_SYS_HZ_CLOCK	1000000	/* Timer is clocked at 1MHz */
 
-#define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size	*/
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define CONFIG_SYS_CBSIZE	1024
+#define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 
 #define CONFIG_SYS_MAXARGS		16
 

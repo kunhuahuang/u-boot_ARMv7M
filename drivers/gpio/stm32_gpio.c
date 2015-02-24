@@ -44,8 +44,8 @@ struct stm32_gpio_regs {
 };
 
 #define CHECK_DSC(x)	(!x || x->port > 8 || x->pin > 15)
-#define CHECK_CTL(x)	(!x || x->af > 15 || x->mode > 3 || x->otype > 1 \
-			|| x->pupd > 2 || x->speed > 3)
+#define CHECK_CTL(x)	(!x || x->af > 15 || x->mode > 3 || x->otype > 1 || \
+			x->pupd > 2 || x->speed > 3)
 
 int stm32_gpio_config(const struct stm32_gpio_dsc *dsc,
 		const struct stm32_gpio_ctl *ctl)
@@ -102,13 +102,10 @@ int stm32_gpout_set(const struct stm32_gpio_dsc *dsc, int state)
 
 	gpio_regs = (struct stm32_gpio_regs *)io_base[dsc->port];
 
-	if (state) {
-		/* Set */
-		gpio_regs->bsrr = 1 << dsc->pin;
-	} else {
-		/* Reset */
-		gpio_regs->bsrr = 1 << (dsc->pin + 16);
-	}
+	if (state)
+		gpio_regs->bsrr = 1 << dsc->pin;	/* Set */
+	else
+		gpio_regs->bsrr = 1 << (dsc->pin + 16);	/* Reset */
 	rv = 0;
 out:
 	return rv;
@@ -172,7 +169,7 @@ int gpio_direction_output(unsigned gpio, int value)
 	ctl.speed = STM32_GPIO_SPEED_50M;
 
 	res = stm32_gpio_config(&dsc, &ctl);
-	if(res < 0)
+	if (res < 0)
 		goto out;
 	res = stm32_gpout_set(&dsc, value);
 out:

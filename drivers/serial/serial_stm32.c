@@ -45,17 +45,18 @@ static void stm32_serial_setbrg(void)
 
 static int stm32_serial_init(void)
 {
-	volatile struct stm32_serial* usart = (struct stm32_serial *)USART_BASE;
+	volatile struct stm32_serial *usart = (struct stm32_serial *)USART_BASE;
 	u32 clock, int_div, frac_div, tmp;
 
-	if((USART_BASE & STM32_BUS_MASK) == STM32_APB1PERIPH_BASE) {
+	if ((USART_BASE & STM32_BUS_MASK) == STM32_APB1PERIPH_BASE) {
 		STM32_RCC->apb1enr |= RCC_USART_ENABLE;
 		clock = clock_get(CLOCK_APB1);
-	} else if((USART_BASE & STM32_BUS_MASK) == STM32_APB2PERIPH_BASE) {
+	} else if ((USART_BASE & STM32_BUS_MASK) == STM32_APB2PERIPH_BASE) {
 		STM32_RCC->apb2enr |= RCC_USART_ENABLE;
 		clock = clock_get(CLOCK_APB2);
-	} else
+	} else {
 		return -1;
+	}
 
 	int_div = (25 * clock) / (4 * gd->baudrate);
 	tmp = ((int_div / 100) << USART_BRR_M_SHIFT) & USART_BRR_M_MASK;
@@ -70,21 +71,21 @@ static int stm32_serial_init(void)
 
 static int stm32_serial_getc(void)
 {
-	volatile struct stm32_serial* usart = (struct stm32_serial *)USART_BASE;
-	while((usart->sr & USART_SR_FLAG_RXNE) == 0);
+	volatile struct stm32_serial *usart = (struct stm32_serial *)USART_BASE;
+	while ((usart->sr & USART_SR_FLAG_RXNE) == 0);
 	return usart->dr;
 }
 
 static void stm32_serial_putc(const char c)
 {
-	volatile struct stm32_serial* usart = (struct stm32_serial *)USART_BASE;
-	while((usart->sr & USART_SR_FLAG_TXE) == 0);
+	volatile struct stm32_serial *usart = (struct stm32_serial *)USART_BASE;
+	while ((usart->sr & USART_SR_FLAG_TXE) == 0);
 	usart->dr = c;
 }
 
 static int stm32_serial_tstc(void)
 {
-	volatile struct stm32_serial* usart = (struct stm32_serial *)USART_BASE;
+	volatile struct stm32_serial *usart = (struct stm32_serial *)USART_BASE;
 	return (usart->sr & USART_SR_FLAG_RXNE);
 }
 

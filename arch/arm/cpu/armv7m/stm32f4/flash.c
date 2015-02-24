@@ -21,7 +21,7 @@ const u32 sect_sz_kb[CONFIG_SYS_MAX_FLASH_SECT] = {
 
 static void stm32f4_flash_lock(u8 lock)
 {
-	if(lock) {
+	if (lock) {
 		STM32_FLASH->cr |= STM32_FLASH_CR_LOCK;
 	} else {
 		STM32_FLASH->key = STM32_FLASH_KEY1;
@@ -29,18 +29,19 @@ static void stm32f4_flash_lock(u8 lock)
 	}
 }
 
-unsigned long flash_init (void)
+unsigned long flash_init(void)
 {
 	unsigned long total_size = 0;
-	u8 i,j;
+	u8 i, j;
 
-	for(i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
 		flash_info[i].flash_id = FLASH_STM32F4;
 		flash_info[i].sector_count = CONFIG_SYS_MAX_FLASH_SECT;
 		flash_info[i].start[0] = CONFIG_SYS_FLASH_BASE + (i << 20);
 		flash_info[i].size = sect_sz_kb[0];
-		for(j = 1; j < CONFIG_SYS_MAX_FLASH_SECT; j++) {
-			flash_info[i].start[j] = flash_info[i].start[j - 1] + (sect_sz_kb[j - 1]);
+		for (j = 1; j < CONFIG_SYS_MAX_FLASH_SECT; j++) {
+			flash_info[i].start[j] = flash_info[i].start[j - 1]
+						+ (sect_sz_kb[j - 1]);
 			flash_info[i].size += sect_sz_kb[j];
 		}
 		total_size += flash_info[i].size;
@@ -49,56 +50,56 @@ unsigned long flash_init (void)
 	return total_size;
 }
 
-void flash_print_info (flash_info_t *info)
+void flash_print_info(flash_info_t *info)
 {
 	int i;
 
 	if (info->flash_id == FLASH_UNKNOWN) {
-		printf ("missing or unknown FLASH type\n");
+		printf("missing or unknown FLASH type\n");
 		return;
 	} else if (info->flash_id == FLASH_STM32F4) {
 		printf("STM32F4 Embedded Flash\n");
 	}
 
-	printf ("  Size: %ld MB in %d Sectors\n",
+	printf("  Size: %ld MB in %d Sectors\n",
 		info->size >> 20, info->sector_count);
 
-	printf ("  Sector Start Addresses:");
-	for (i=0; i<info->sector_count; ++i) {
+	printf("  Sector Start Addresses:");
+	for (i = 0; i < info->sector_count; ++i) {
 		if ((i % 5) == 0)
-			printf ("\n   ");
-		printf (" %08lX%s",
+			printf("\n   ");
+		printf(" %08lX%s",
 			info->start[i],
 			info->protect[i] ? " (RO)" : "     "
 		);
 	}
-	printf ("\n");
+	printf("\n");
 	return;
 }
 
-int flash_erase(flash_info_t * info, int first, int last)
+int flash_erase(flash_info_t *info, int first, int last)
 {
 	u8 bank = 0xFF;
 	int i;
 
-	for(i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
 		if(info == &flash_info[i]) {
 			bank = i;
 			break;
 		}
 	}
-	if(bank == 0xFF) {
+	if (bank == 0xFF) {
 		return -1;
 	}
 
 	stm32f4_flash_lock(0);
 
-	for(i = first; i <= last; i++) {
-		while(STM32_FLASH->sr & STM32_FLASH_SR_BSY);
+	for (i = first; i <= last; i++) {
+		while (STM32_FLASH->sr & STM32_FLASH_SR_BSY);
 
-		if(bank == 0) {
+		if (bank == 0) {
 			STM32_FLASH->cr |= (i << STM32_FLASH_CR_SNB_OFFSET);
-		} else if(bank == 1) {
+		} else if (bank == 1) {
 			STM32_FLASH->cr |= ((0x10 | i) << STM32_FLASH_CR_SNB_OFFSET);
 		} else {
 			stm32f4_flash_lock(1);
@@ -107,7 +108,7 @@ int flash_erase(flash_info_t * info, int first, int last)
 		STM32_FLASH->cr |= STM32_FLASH_CR_SER;
 		STM32_FLASH->cr |= STM32_FLASH_CR_STRT;
 
-		while(STM32_FLASH->sr & STM32_FLASH_SR_BSY);
+		while (STM32_FLASH->sr & STM32_FLASH_SR_BSY);
 
 		STM32_FLASH->cr &= (~STM32_FLASH_CR_SER);
 		stm32f4_flash_lock(1);
@@ -116,19 +117,19 @@ int flash_erase(flash_info_t * info, int first, int last)
 	return 0;
 }
 
-int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
+int write_buff(flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 {
 	ulong i;
 
-	while(STM32_FLASH->sr & STM32_FLASH_SR_BSY);
+	while (STM32_FLASH->sr & STM32_FLASH_SR_BSY);
 
 	stm32f4_flash_lock(0);
 
 	STM32_FLASH->cr |= STM32_FLASH_CR_PG;
 	/* To make things simple use byte writes only */
-	for(i = 0; i < cnt; i++) {
+	for (i = 0; i < cnt; i++) {
 		*(uchar*)(addr + i) = src[i];
-		while(STM32_FLASH->sr & STM32_FLASH_SR_BSY);
+		while (STM32_FLASH->sr & STM32_FLASH_SR_BSY);
 	}
 	STM32_FLASH->cr &= (~STM32_FLASH_CR_PG);
 	stm32f4_flash_lock(1);

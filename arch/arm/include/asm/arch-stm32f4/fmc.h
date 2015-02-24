@@ -1,22 +1,11 @@
 /*
  * (C) Copyright 2013
- *
  * Pavel Boldin, Emcraft Systems, paboldin@emcraft.com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
+ * (C) Copyright 2014
+ * Kamil Lulko, <rev13@wp.pl>
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _MACH_FMC_H_
@@ -79,8 +68,8 @@ struct stm32_fmc_regs {
 
 #define FMC_BUSY_WAIT()		do { \
 		__asm__ __volatile__ ("dsb" : : : "memory"); \
-		while(STM32_SDRAM_FMC->sdsr & FMC_SDSR_BUSY); \
-	} while(0);
+		while (STM32_SDRAM_FMC->sdsr & FMC_SDSR_BUSY); \
+	} while (0)
 
 
 #endif /* _MACH_FMC_H_ */

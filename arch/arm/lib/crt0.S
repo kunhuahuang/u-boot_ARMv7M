@@ -69,7 +69,7 @@ ENTRY(_main)
 #else
 	ldr	sp, =(CONFIG_SYS_INIT_SP_ADDR)
 #endif
-#if defined(CONFIG_ARMV7M)	/* ARMv7-M forbids using SP as BIC destination register */
+#if defined(CONFIG_ARMV7M)	/* v7M forbids using SP as BIC destination */
 	mov r3, sp
 	bic r3, r3, #7
 	mov sp, r3
@@ -78,7 +78,7 @@ ENTRY(_main)
 #endif
 	mov	r2, sp
 	sub	sp, sp, #GD_SIZE	/* allocate one GD above SP */
-#if defined(CONFIG_ARMV7M)	/* ARMv7-M forbids using SP as BIC destination register */
+#if defined(CONFIG_ARMV7M)	/* v7M forbids using SP as BIC destination */
 	mov r3, sp
 	bic r3, r3, #7
 	mov sp, r3
@@ -112,7 +112,7 @@ clr_gd:
  */
 
 	ldr	sp, [r9, #GD_START_ADDR_SP]	/* sp = gd->start_addr_sp */
-#if defined(CONFIG_ARMV7M)	/* ARMv7-M forbids using SP as BIC destination register */
+#if defined(CONFIG_ARMV7M)	/* v7M forbids using SP as BIC destination */
 	mov r3, sp
 	bic r3, r3, #7
 	mov sp, r3
@@ -126,7 +126,7 @@ clr_gd:
 	ldr	r0, [r9, #GD_RELOC_OFF]		/* r0 = gd->reloc_off */
 	add	lr, lr, r0
 #if defined(CONFIG_ARMV7M)
-	orr lr, #1				/* Set bit 0 as required by Thumb-only */
+	orr lr, #1				/* As required by Thumb-only */
 #endif
 	ldr	r0, [r9, #GD_RELOCADDR]		/* r0 = gd->relocaddr */
 	b	relocate_code

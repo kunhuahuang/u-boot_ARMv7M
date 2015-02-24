@@ -132,13 +132,13 @@ static int spi4_setup_gpio(void)
 
 	for (i = 0; i < ARRAY_SIZE(spi4_cs_gpio) - 1; i++) {
 		rv = stm32_gpio_config(&spi4_cs_gpio[i], &gpio_ctl_gp);
-		if(rv)
+		if (rv)
 			goto out;
 	}
 
 	for (i = 0; i < ARRAY_SIZE(spi4_gpio); i++) {
 		rv = stm32_gpio_config(&spi4_gpio[i], &gpio_ctl_spi);
-		if(rv)
+		if (rv)
 			goto out;
 	}
 
@@ -164,7 +164,7 @@ static int spi5_setup_gpio(void)
 
 	for (i = 0; i < ARRAY_SIZE(spi5_cs_gpio) - 1; i++) {
 		rv = stm32_gpio_config(&spi5_cs_gpio[i], &gpio_ctl_gp);
-		if(rv)
+		if (rv)
 			goto out;
 	}
 
@@ -198,7 +198,7 @@ int uart1_setup_gpio(void)
 
 	for (i = 0; i < ARRAY_SIZE(usart1_gpio); i++) {
 		rv = stm32_gpio_config(&usart1_gpio[i], &gpio_ctl_usart);
-		if(rv)
+		if (rv)
 			goto out;
 	}
 
@@ -208,7 +208,7 @@ out:
 
 void lcd_show_board_info(void)
 {
-	lcd_printf ("STM32F429 Discovery\n");
+	lcd_printf("STM32F429 Discovery\n");
 }
 
 /*
@@ -276,7 +276,8 @@ static int fmc_fsmc_setup_gpio(void)
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(ext_ram_fsmc_fmc_gpio); i++) {
-		rv = stm32_gpio_config(&ext_ram_fsmc_fmc_gpio[i], &gpio_ctl_fmc);
+		rv = stm32_gpio_config(&ext_ram_fsmc_fmc_gpio[i],
+				&gpio_ctl_fmc);
 		if (rv)
 			goto out;
 	}
@@ -322,7 +323,7 @@ static inline u32 _ns2clk(u32 ns, u32 freq)
 #define SDRAM_TREF	1386
 #define SDRAM_TCCD	(1 - 1)
 
-#define SDRAM_TXSR	(NS2CLK(70)-1) 	/* Row cycle time after precharge */
+#define SDRAM_TXSR	(NS2CLK(70) - 1)/* Row cycle time after precharge */
 #define SDRAM_TMRD	(3 - 1)		/* Page 10, Mode Register Set */
 
 /* Last data-in to row precharge, need also comply ineq from RM 37.7.5 */
@@ -342,7 +343,7 @@ int dram_init(void)
 	int rv;
 
 	rv = fmc_fsmc_setup_gpio();
-	if(rv)
+	if (rv)
 		return rv;
 
 	STM32_RCC->ahb3enr |= STM32_RCC_ENR_FMC;
@@ -434,9 +435,8 @@ int board_early_init_f(void)
 	int res;
 
 	res = uart1_setup_gpio();
-	if(res) {
+	if (res)
 		return res;
-	}
 
 	return 0;
 }
@@ -448,19 +448,16 @@ int board_init(void)
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 	res = spi4_setup_gpio();
-	if(res) {
+	if (res)
 		return res;
-	}
 
 	res = spi5_setup_gpio();
-	if(res) {
+	if (res)
 		return res;
-	}
 
 	res = lcd_setup_gpio();
-	if(res) {
+	if (res)
 		return res;
-	}
 
 	return 0;
 }

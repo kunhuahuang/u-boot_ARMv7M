@@ -21,10 +21,10 @@
 
 #if !defined(__ASSEMBLY__)
 struct v7m_scb {
-	uint32_t cpuid;			/* CPUID Base Register */
-	uint32_t icsr;			/* Interrupt Control and State Register */
-	uint32_t vtor;			/* Vector Table Offset Register */
-	uint32_t aircr;			/* App Interrupt and Reset Control Register */
+	uint32_t cpuid;		/* CPUID Base Register */
+	uint32_t icsr;		/* Interrupt Control and State Register */
+	uint32_t vtor;		/* Vector Table Offset Register */
+	uint32_t aircr;		/* App Interrupt and Reset Control Register */
 };
 #define V7M_SCB		((volatile struct v7m_scb *)V7M_SCB_BASE)
 
@@ -38,11 +38,11 @@ struct v7m_scb {
 #define V7M_ICSR_VECTACT_MSK		0xFF
 
 struct v7m_mpu {
-	uint32_t type;			/* Type Register */
-	uint32_t ctrl;			/* Control Register */
-	uint32_t rnr;			/* Region Number Register */
-	uint32_t rbar;			/* Region Base Address Register */
-	uint32_t rasr;			/* Region Attribute and Size Register */
+	uint32_t type;		/* Type Register */
+	uint32_t ctrl;		/* Control Register */
+	uint32_t rnr;		/* Region Number Register */
+	uint32_t rbar;		/* Region Base Address Register */
+	uint32_t rasr;		/* Region Attribute and Size Register */
 };
 #define V7M_MPU		((volatile struct v7m_mpu *)V7M_MPU_BASE)
 

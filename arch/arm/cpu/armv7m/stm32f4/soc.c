@@ -29,15 +29,14 @@ int arch_cpu_init(void)
 	V7M_MPU->ctrl = (V7M_MPU_CTRL_ENABLE | V7M_MPU_CTRL_HFNMIENA);
 
 	/*
-	 * XXX: Configure DGB registers so the Debugger doesn't go down after WFI
-	 * instruction. This should NOT go into production code.
+	 * XXX: Configure DGB registers so the Debugger doesn't go down after
+	 * WFI instruction. This should NOT go into production code.
 	 */
-	*(uint32_t*)0xE0042004 |= 0x7;
+	*(uint32_t *)0xE0042004 |= 0x7;
 
 	return 0;
 }
 
 void s_init(void)
 {
-
 }
