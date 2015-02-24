@@ -62,15 +62,15 @@ void flash_print_info(flash_info_t *info)
 	}
 
 	printf("  Size: %ld MB in %d Sectors\n",
-			info->size >> 20, info->sector_count);
+		info->size >> 20, info->sector_count);
 
 	printf("  Sector Start Addresses:");
 	for (i = 0; i < info->sector_count; ++i) {
 		if ((i % 5) == 0)
 			printf("\n   ");
 		printf(" %08lX%s",
-				info->start[i],
-				info->protect[i] ? " (RO)" : "     ");
+			info->start[i],
+			info->protect[i] ? " (RO)" : "     ");
 	}
 	printf("\n");
 	return;
@@ -122,8 +122,8 @@ int write_buff(flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 {
 	ulong i;
 
-	while (STM32_FLASH->sr & STM32_FLASH_SR_BSY) {
-	}
+	while (STM32_FLASH->sr & STM32_FLASH_SR_BSY)
+		;
 
 	stm32f4_flash_lock(0);
 

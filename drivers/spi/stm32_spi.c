@@ -146,7 +146,8 @@ int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 		return 1;
 }
 
-static inline struct stm32_spi_slave *to_stm32_spi_slave(struct spi_slave *slave)
+static inline struct stm32_spi_slave *to_stm32_spi_slave(
+		struct spi_slave *slave)
 {
 	return container_of(slave, struct stm32_spi_slave, slave);
 }
