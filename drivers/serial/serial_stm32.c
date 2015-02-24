@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
 #include <serial.h>
 #include <asm/arch/stm32.h>
 
@@ -45,14 +46,14 @@ static void stm32_serial_setbrg(void)
 
 static int stm32_serial_init(void)
 {
-	volatile struct stm32_serial *usart = (struct stm32_serial *)USART_BASE;
+	struct stm32_serial *usart = (struct stm32_serial *)USART_BASE;
 	u32 clock, int_div, frac_div, tmp;
 
 	if ((USART_BASE & STM32_BUS_MASK) == STM32_APB1PERIPH_BASE) {
-		STM32_RCC->apb1enr |= RCC_USART_ENABLE;
+		setbits_le32(&STM32_RCC->apb1enr, RCC_USART_ENABLE);
 		clock = clock_get(CLOCK_APB1);
 	} else if ((USART_BASE & STM32_BUS_MASK) == STM32_APB2PERIPH_BASE) {
-		STM32_RCC->apb2enr |= RCC_USART_ENABLE;
+		setbits_le32(&STM32_RCC->apb2enr, RCC_USART_ENABLE);
 		clock = clock_get(CLOCK_APB2);
 	} else {
 		return -1;
@@ -63,34 +64,34 @@ static int stm32_serial_init(void)
 	frac_div = int_div - (100 * (tmp >> USART_BRR_M_SHIFT));
 	tmp |= (((frac_div * 16) + 50) / 100) & USART_BRR_F_MASK;
 
-	usart->brr = tmp;
-	usart->cr1 = USART_CR1_RE | USART_CR1_TE | USART_CR1_UE;
+	writel(tmp, &usart->brr);
+	setbits_le32(&usart->cr1, USART_CR1_RE | USART_CR1_TE | USART_CR1_UE);
 
 	return 0;
 }
 
 static int stm32_serial_getc(void)
 {
-	volatile struct stm32_serial *usart = (struct stm32_serial *)USART_BASE;
-	while ((usart->sr & USART_SR_FLAG_RXNE) == 0)
+	struct stm32_serial *usart = (struct stm32_serial *)USART_BASE;
+	while ((readl(&usart->sr) & USART_SR_FLAG_RXNE) == 0)
 		;
-	return usart->dr;
+	return readl(&usart->dr);
 }
 
 static void stm32_serial_putc(const char c)
 {
-	volatile struct stm32_serial *usart = (struct stm32_serial *)USART_BASE;
-	while ((usart->sr & USART_SR_FLAG_TXE) == 0)
+	struct stm32_serial *usart = (struct stm32_serial *)USART_BASE;
+	while ((readl(&usart->sr) & USART_SR_FLAG_TXE) == 0)
 		;
-	usart->dr = c;
+	writel(c, &usart->dr);
 }
 
 static int stm32_serial_tstc(void)
 {
-	volatile struct stm32_serial *usart = (struct stm32_serial *)USART_BASE;
+	struct stm32_serial *usart = (struct stm32_serial *)USART_BASE;
 	u8 ret;
 
-	ret = usart->sr & USART_SR_FLAG_RXNE;
+	ret = readl(&usart->sr) & USART_SR_FLAG_RXNE;
 	return ret;
 }
 
