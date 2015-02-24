@@ -224,11 +224,11 @@ int  spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 			value = *txp++;
 		else
 			value = 0xFF;
-		while ((spi->sr & SPI_SR_TXE) == 0) {
-		}
+		while ((spi->sr & SPI_SR_TXE) == 0)
+			;
 		spi->dr = value;
-		while ((spi->sr & SPI_SR_RXNE) == 0) {
-		}
+		while ((spi->sr & SPI_SR_RXNE) == 0)
+			;
 		value = spi->dr;
 		if (rxp)
 			*rxp++ = value;

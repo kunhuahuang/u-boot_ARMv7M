@@ -87,7 +87,7 @@ void lcd_ctrl_init(void *lcdbase)
 	STM32_RCC->dckcfgr |= (1 << 17);
 	STM32_RCC->cr |= (1 << 28);
 	while ((STM32_RCC->cr & (1 << 29)) == 0)
-	{}
+		;
 
 	ltdc->sscr = (9 << 16) | 1;
 	ltdc->bpcr = (29 << 16) | 3;

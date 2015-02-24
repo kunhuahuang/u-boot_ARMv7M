@@ -72,16 +72,16 @@ static int stm32_serial_init(void)
 static int stm32_serial_getc(void)
 {
 	volatile struct stm32_serial *usart = (struct stm32_serial *)USART_BASE;
-	while ((usart->sr & USART_SR_FLAG_RXNE) == 0) {
-	}
+	while ((usart->sr & USART_SR_FLAG_RXNE) == 0)
+		;
 	return usart->dr;
 }
 
 static void stm32_serial_putc(const char c)
 {
 	volatile struct stm32_serial *usart = (struct stm32_serial *)USART_BASE;
-	while ((usart->sr & USART_SR_FLAG_TXE) == 0) {
-	}
+	while ((usart->sr & USART_SR_FLAG_TXE) == 0)
+		;
 	usart->dr = c;
 }
 

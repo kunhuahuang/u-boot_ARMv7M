@@ -117,8 +117,8 @@ int configure_clocks(void)
 
 	/* Configure for HSE+PLL operation */
 	STM32_RCC->cr |= RCC_CR_HSEON;
-	while (!(STM32_RCC->cr & RCC_CR_HSERDY)) {
-	}
+	while (!(STM32_RCC->cr & RCC_CR_HSERDY))
+		;
 
 	/* Enable high performance mode, System frequency up to 168 MHz */
 	STM32_RCC->apb1enr |= RCC_APB1ENR_PWREN;
@@ -137,8 +137,8 @@ int configure_clocks(void)
 
 	STM32_RCC->cr |= RCC_CR_PLLON;
 
-	while (!(STM32_RCC->cr & RCC_CR_PLLRDY)) {
-	}
+	while (!(STM32_RCC->cr & RCC_CR_PLLRDY))
+		;
 
 	/* 5 wait states, Prefetch enabled, D-Cache enabled, I-Cache enabled */
 	STM32_FLASH->acr = FLASH_ACR_WS(5) | FLASH_ACR_PRFTEN | FLASH_ACR_ICEN
@@ -147,8 +147,8 @@ int configure_clocks(void)
 	STM32_RCC->cfgr &= ~(RCC_CFGR_SW0 | RCC_CFGR_SW1);
 	STM32_RCC->cfgr |= RCC_CFGR_SW_PLL;
 
-	while ((STM32_RCC->cfgr & RCC_CFGR_SWS_MASK) != RCC_CFGR_SWS_PLL) {
-	}
+	while ((STM32_RCC->cfgr & RCC_CFGR_SWS_MASK) != RCC_CFGR_SWS_PLL)
+		;
 
 	return 0;
 }
