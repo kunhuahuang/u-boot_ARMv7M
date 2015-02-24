@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
 #include <asm/armv7m.h>
 #include <asm/arch/stm32.h>
 
@@ -45,20 +46,20 @@ struct stm32_tim2_5 {
 
 int timer_init(void)
 {
-	volatile struct stm32_tim2_5 *tim =
-			(struct stm32_tim2_5 *)STM32_TIM2_BASE;
+	struct stm32_tim2_5 *tim = (struct stm32_tim2_5 *)STM32_TIM2_BASE;
 
-	STM32_RCC->apb1enr |= RCC_APB1ENR_TIM2EN;
+	setbits_le32(&STM32_RCC->apb1enr, RCC_APB1ENR_TIM2EN);
 
 	if (clock_get(CLOCK_AHB) == clock_get(CLOCK_APB1))
-		tim->psc = (clock_get(CLOCK_APB1) / CONFIG_SYS_HZ_CLOCK) - 1;
+		writel((clock_get(CLOCK_APB1) / CONFIG_SYS_HZ_CLOCK) - 1,
+		       &tim->psc);
 	else
-		tim->psc = ((clock_get(CLOCK_APB1) * 2) / CONFIG_SYS_HZ_CLOCK)
-			- 1;
+		writel(((clock_get(CLOCK_APB1) * 2) / CONFIG_SYS_HZ_CLOCK) - 1,
+		       &tim->psc);
 
-	tim->arr = 0xFFFFFFFF;
-	tim->cr1 = TIM_CR1_CEN;
-	tim->egr |= TIM_EGR_UG;
+	writel(0xFFFFFFFF, &tim->arr);
+	writel(TIM_CR1_CEN, &tim->cr1);
+	setbits_le32(&tim->egr, TIM_EGR_UG);
 
 	gd->arch.tbl = 0;
 	gd->arch.tbu = 0;
@@ -74,11 +75,10 @@ ulong get_timer(ulong base)
 
 unsigned long long get_ticks(void)
 {
-	volatile struct stm32_tim2_5 *tim =
-			(struct stm32_tim2_5 *)STM32_TIM2_BASE;
+	struct stm32_tim2_5 *tim = (struct stm32_tim2_5 *)STM32_TIM2_BASE;
 	u32 now;
 
-	now = tim->cnt;
+	now = readl(&tim->cnt);
 
 	if (now >= gd->arch.lastinc)
 		gd->arch.tbl += (now - gd->arch.lastinc);
@@ -92,10 +92,9 @@ unsigned long long get_ticks(void)
 
 void reset_timer(void)
 {
-	volatile struct stm32_tim2_5 *tim =
-			(struct stm32_tim2_5 *)STM32_TIM2_BASE;
+	struct stm32_tim2_5 *tim = (struct stm32_tim2_5 *)STM32_TIM2_BASE;
 
-	gd->arch.lastinc = tim->cnt;
+	gd->arch.lastinc = readl(&tim->cnt);
 	gd->arch.tbl = 0;
 }
 
