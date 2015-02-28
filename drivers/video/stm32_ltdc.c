@@ -10,6 +10,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <asm/io.h>
 #include <version.h>
 #include <stdarg.h>
 #include <linux/types.h>
@@ -81,12 +82,12 @@ void lcd_ctrl_init(void *lcdbase)
 {
 	volatile struct stm32_ltdc *ltdc = (struct stm32_ltdc *)STM32_LTDC_BASE;
 
-	STM32_RCC->apb2enr |= (1 << 26); /* ltdc en */
+	setbits_le32(&STM32_RCC->apb2enr, (1 << 26)); /* ltdc en */
 
-	STM32_RCC->pllsaicfgr = 0x40003000;
-	STM32_RCC->dckcfgr |= (1 << 17);
-	STM32_RCC->cr |= (1 << 28);
-	while ((STM32_RCC->cr & (1 << 29)) == 0)
+	writel(0x40003000, &STM32_RCC->pllsaicfgr);
+	setbits_le32(&STM32_RCC->dckcfgr, (1 << 17));
+	setbits_le32(&STM32_RCC->cr, (1 << 28));
+	while ((readl(&STM32_RCC->cr) & (1 << 29)) == 0)
 		;
 
 	ltdc->sscr = (9 << 16) | 1;

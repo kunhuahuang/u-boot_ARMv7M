@@ -12,6 +12,7 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
 #include <asm/armv7m.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/gpio.h>
@@ -346,7 +347,7 @@ int dram_init(void)
 	if (rv)
 		return rv;
 
-	STM32_RCC->ahb3enr |= STM32_RCC_ENR_FMC;
+	setbits_le32(&STM32_RCC->ahb3enr, STM32_RCC_ENR_FMC);
 
 	/*
 	 * Get frequency for NS2CLK calculation.

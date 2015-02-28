@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
 #include <asm/arch/stm32.h>
 
 #define STM32_FLASH_KEY1	0x45670123
@@ -22,10 +23,10 @@ const u32 sect_sz_kb[CONFIG_SYS_MAX_FLASH_SECT] = {
 static void stm32f4_flash_lock(u8 lock)
 {
 	if (lock) {
-		STM32_FLASH->cr |= STM32_FLASH_CR_LOCK;
+		setbits_le32(&STM32_FLASH->cr, STM32_FLASH_CR_LOCK);
 	} else {
-		STM32_FLASH->key = STM32_FLASH_KEY1;
-		STM32_FLASH->key = STM32_FLASH_KEY2;
+		writel(STM32_FLASH_KEY1, &STM32_FLASH->key);
+		writel(STM32_FLASH_KEY2, &STM32_FLASH->key);
 	}
 }
 
@@ -93,25 +94,26 @@ int flash_erase(flash_info_t *info, int first, int last)
 	stm32f4_flash_lock(0);
 
 	for (i = first; i <= last; i++) {
-		while (STM32_FLASH->sr & STM32_FLASH_SR_BSY)
+		while (readl(&STM32_FLASH->sr) & STM32_FLASH_SR_BSY)
 			;
 
 		if (bank == 0) {
-			STM32_FLASH->cr |= (i << STM32_FLASH_CR_SNB_OFFSET);
+			setbits_le32(&STM32_FLASH->cr,
+				(i << STM32_FLASH_CR_SNB_OFFSET));
 		} else if (bank == 1) {
-			STM32_FLASH->cr |= ((0x10 | i)
-				<< STM32_FLASH_CR_SNB_OFFSET);
+			setbits_le32(&STM32_FLASH->cr,
+				((0x10 | i) << STM32_FLASH_CR_SNB_OFFSET));
 		} else {
 			stm32f4_flash_lock(1);
 			return -1;
 		}
-		STM32_FLASH->cr |= STM32_FLASH_CR_SER;
-		STM32_FLASH->cr |= STM32_FLASH_CR_STRT;
+		setbits_le32(&STM32_FLASH->cr, STM32_FLASH_CR_SER);
+		setbits_le32(&STM32_FLASH->cr, STM32_FLASH_CR_STRT);
 
-		while (STM32_FLASH->sr & STM32_FLASH_SR_BSY)
+		while (readl(&STM32_FLASH->sr) & STM32_FLASH_SR_BSY)
 			;
 
-		STM32_FLASH->cr &= (~STM32_FLASH_CR_SER);
+		clrbits_le32(&STM32_FLASH->cr, STM32_FLASH_CR_SER);
 		stm32f4_flash_lock(1);
 	}
 
@@ -122,19 +124,19 @@ int write_buff(flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 {
 	ulong i;
 
-	while (STM32_FLASH->sr & STM32_FLASH_SR_BSY)
+	while (readl(&STM32_FLASH->sr) & STM32_FLASH_SR_BSY)
 		;
 
 	stm32f4_flash_lock(0);
 
-	STM32_FLASH->cr |= STM32_FLASH_CR_PG;
+	setbits_le32(&STM32_FLASH->cr, STM32_FLASH_CR_PG);
 	/* To make things simple use byte writes only */
 	for (i = 0; i < cnt; i++) {
 		*(uchar *)(addr + i) = src[i];
-		while (STM32_FLASH->sr & STM32_FLASH_SR_BSY)
+		while (readl(&STM32_FLASH->sr) & STM32_FLASH_SR_BSY)
 			;
 	}
-	STM32_FLASH->cr &= (~STM32_FLASH_CR_PG);
+	clrbits_le32(&STM32_FLASH->cr, STM32_FLASH_CR_PG);
 	stm32f4_flash_lock(1);
 
 	return 0;

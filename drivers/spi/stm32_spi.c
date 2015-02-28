@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
 #include <malloc.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/stm32.h>
@@ -105,9 +106,9 @@ static int spi_cfg_stm32(struct spi_slave *slave,
 
 	/* SPI2 and SPI3 are on the APB1 */
 	if (slave->bus == 1 || slave->bus == 2)
-		STM32_RCC->apb1enr |= spi_rcc_en[slave->bus];
+		setbits_le32(&STM32_RCC->apb1enr, spi_rcc_en[slave->bus]);
 	else
-		STM32_RCC->apb2enr |= spi_rcc_en[slave->bus];
+		setbits_le32(&STM32_RCC->apb2enr, spi_rcc_en[slave->bus]);
 
 	spi->cr1 = SPI_CR1_MSTR | SPI_CR1_SSI | SPI_CR1_SSM;
 	spi->i2scfgr &= (uint16_t)(~SPI_I2SCFGR_I2SMOD);
