@@ -127,9 +127,9 @@ int configure_clocks(void)
 	writel(PWR_CR_VOS_SCALE_MODE_1, &STM32_PWR->cr);
 
 	setbits_le32(&STM32_RCC->cfgr, ((
-			pll_psc_168.ahb_psc << RCC_CFGR_HPRE_SHIFT)
-			| (pll_psc_168.apb1_psc << RCC_CFGR_PPRE1_SHIFT)
-			| (pll_psc_168.apb2_psc << RCC_CFGR_PPRE2_SHIFT)));
+		pll_psc_168.ahb_psc << RCC_CFGR_HPRE_SHIFT)
+		| (pll_psc_168.apb1_psc << RCC_CFGR_PPRE1_SHIFT)
+		| (pll_psc_168.apb2_psc << RCC_CFGR_PPRE2_SHIFT)));
 
 	writel(pll_psc_168.pll_m
 		| (pll_psc_168.pll_n << RCC_PLLCFGR_PLLN_SHIFT)

@@ -15,9 +15,9 @@
 flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 const u32 sect_sz_kb[CONFIG_SYS_MAX_FLASH_SECT] = {
-		[0 ... 3] =	16 * 1024,
-		[4] =		64 * 1024,
-		[5 ... 11] =	128 * 1024
+	[0 ... 3] =	16 * 1024,
+	[4] =		64 * 1024,
+	[5 ... 11] =	128 * 1024
 };
 
 static void stm32f4_flash_lock(u8 lock)
@@ -42,7 +42,7 @@ unsigned long flash_init(void)
 		flash_info[i].size = sect_sz_kb[0];
 		for (j = 1; j < CONFIG_SYS_MAX_FLASH_SECT; j++) {
 			flash_info[i].start[j] = flash_info[i].start[j - 1]
-						+ (sect_sz_kb[j - 1]);
+				+ (sect_sz_kb[j - 1]);
 			flash_info[i].size += sect_sz_kb[j];
 		}
 		total_size += flash_info[i].size;
