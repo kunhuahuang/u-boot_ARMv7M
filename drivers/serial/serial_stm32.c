@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2014
+ * (C) Copyright 2015
  * Kamil Lulko, <rev13@wp.pl>
  *
  * SPDX-License-Identifier:	GPL-2.0+

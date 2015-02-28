@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2014
+ * (C) Copyright 2015
  * Kamil Lulko, <rev13@wp.pl>
  *
  * (C) Copyright 2014
