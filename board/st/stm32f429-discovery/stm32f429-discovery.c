@@ -371,7 +371,7 @@ int dram_init(void)
 
 	writel(SDRAM_TRP << FMC_SDTR_TRP_SHIFT
 		| SDRAM_TRC << FMC_SDTR_TRC_SHIFT,
-		&STM32_SDRAM_FMC->sdtr2);
+		&STM32_SDRAM_FMC->sdtr1);
 
 	writel(SDRAM_TRCD << FMC_SDTR_TRCD_SHIFT
 		| SDRAM_TRP << FMC_SDTR_TRP_SHIFT
