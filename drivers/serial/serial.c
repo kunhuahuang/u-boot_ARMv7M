@@ -155,6 +155,7 @@ serial_initfunc(sa1100_serial_initialize);
 serial_initfunc(sandbox_serial_initialize);
 serial_initfunc(sconsole_serial_initialize);
 serial_initfunc(sh_serial_initialize);
+serial_initfunc(stm32_serial_initialize);
 serial_initfunc(uartlite_serial_initialize);
 serial_initfunc(zynq_serial_initialize);
 
@@ -248,6 +249,7 @@ void serial_initialize(void)
 	sandbox_serial_initialize();
 	sconsole_serial_initialize();
 	sh_serial_initialize();
+	stm32_serial_initialize();
 	uartlite_serial_initialize();
 	zynq_serial_initialize();
 
