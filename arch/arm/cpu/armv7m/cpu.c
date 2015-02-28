@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
 #include <asm/armv7m.h>
 
 /*
@@ -28,7 +29,7 @@ void reset_cpu(ulong addr)
 	/*
 	 * Perform reset but keep priority group unchanged.
 	 */
-	V7M_SCB->aircr = (V7M_AIRCR_VECTKEY << V7M_AIRCR_VECTKEY_SHIFT)
-			| (V7M_SCB->aircr & V7M_AIRCR_PRIGROUP_MSK)
-			| V7M_AIRCR_SYSRESET;
+	writel((V7M_AIRCR_VECTKEY << V7M_AIRCR_VECTKEY_SHIFT)
+		| (V7M_SCB->aircr & V7M_AIRCR_PRIGROUP_MSK)
+		| V7M_AIRCR_SYSRESET, &V7M_SCB->aircr);
 }

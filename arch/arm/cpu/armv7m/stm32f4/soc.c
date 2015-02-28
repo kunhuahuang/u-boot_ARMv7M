@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
 #include <asm/armv7m.h>
 #include <asm/arch/stm32.h>
 
@@ -22,11 +23,11 @@ int arch_cpu_init(void)
 	 * Configure the memory protection unit (MPU) to allow full access to
 	 * the whole 4GB address space.
 	 */
-	V7M_MPU->rnr = 0;
-	V7M_MPU->rbar = 0;
-	V7M_MPU->rasr = (V7M_MPU_RASR_AP_RW_RW | V7M_MPU_RASR_SIZE_4GB
-			| V7M_MPU_RASR_EN);
-	V7M_MPU->ctrl = (V7M_MPU_CTRL_ENABLE | V7M_MPU_CTRL_HFNMIENA);
+	writel(0, &V7M_MPU->rnr);
+	writel(0, &V7M_MPU->rbar);
+	writel((V7M_MPU_RASR_AP_RW_RW | V7M_MPU_RASR_SIZE_4GB
+		| V7M_MPU_RASR_EN), &V7M_MPU->rasr);
+	writel(V7M_MPU_CTRL_ENABLE | V7M_MPU_CTRL_HFNMIENA, &V7M_MPU->ctrl);
 
 	/*
 	 * XXX: Configure DGB registers so the Debugger doesn't go down after

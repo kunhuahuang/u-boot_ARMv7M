@@ -26,7 +26,7 @@ struct v7m_scb {
 	uint32_t vtor;		/* Vector Table Offset Register */
 	uint32_t aircr;		/* App Interrupt and Reset Control Register */
 };
-#define V7M_SCB		((volatile struct v7m_scb *)V7M_SCB_BASE)
+#define V7M_SCB				((struct v7m_scb *)V7M_SCB_BASE)
 
 #define V7M_AIRCR_VECTKEY		0x5fa
 #define V7M_AIRCR_VECTKEY_SHIFT		16
@@ -44,7 +44,7 @@ struct v7m_mpu {
 	uint32_t rbar;		/* Region Base Address Register */
 	uint32_t rasr;		/* Region Attribute and Size Register */
 };
-#define V7M_MPU		((volatile struct v7m_mpu *)V7M_MPU_BASE)
+#define V7M_MPU				((struct v7m_mpu *)V7M_MPU_BASE)
 
 #define V7M_MPU_CTRL_ENABLE		(1 << 0)
 #define V7M_MPU_CTRL_HFNMIENA		(1 << 1)
