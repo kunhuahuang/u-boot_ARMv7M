@@ -99,10 +99,10 @@ int flash_erase(flash_info_t *info, int first, int last)
 
 		if (bank == 0) {
 			setbits_le32(&STM32_FLASH->cr,
-				(i << STM32_FLASH_CR_SNB_OFFSET));
+				     (i << STM32_FLASH_CR_SNB_OFFSET));
 		} else if (bank == 1) {
 			setbits_le32(&STM32_FLASH->cr,
-				((0x10 | i) << STM32_FLASH_CR_SNB_OFFSET));
+				     ((0x10 | i) << STM32_FLASH_CR_SNB_OFFSET));
 		} else {
 			stm32f4_flash_lock(1);
 			return -1;
