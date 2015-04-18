@@ -29,6 +29,12 @@ int arch_cpu_init(void)
 		| V7M_MPU_RASR_EN), &V7M_MPU->rasr);
 	writel(V7M_MPU_CTRL_ENABLE | V7M_MPU_CTRL_HFNMIENA, &V7M_MPU->ctrl);
 
+	/*
+	 * XXX: Configure DGB registers so the Debugger doesn't go down after WFI
+	 * instruction. This should NOT go into production code.
+	 */
+	*(uint32_t*)0xE0042004 |= 0x7;
+
 	return 0;
 }
 
